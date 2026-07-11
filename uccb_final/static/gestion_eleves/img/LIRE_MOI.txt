@@ -1,0 +1,7 @@
+Placez ici votre logo de l'université sous le nom :
+
+    logo_uccb.jpg
+
+Ce fichier est utilisé automatiquement dans :
+  - L'attestation de fréquentation
+  - Le relevé de notes

@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+  {% load static %}
+
+  {% block content %}
+
+  <link rel="stylesheet" href="{% static 'css/enseignants.css' %}">
+
+  <div class="page-wrap">
+
+    <div class="page-top">
+      <div>
+        <div class="page-eyebrow">Ressources humaines</div>
+        <h2 class="page-title">Enseignants</h2>
+      </div>
+      <button class="btn-add" onclick="document.getElementById('modal-add').classList.add('open')">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        Nouvel enseignant
+      </button>
+    </div>
+
+    <div class="stat-grid">
+      <div class="scard dark">
+        <div class="scard-icon">&#x1F468;&#x200D;&#x1F3EB;</div>
+        <div class="scard-val">{{ total|default:0 }}</div>
+        <div class="scard-label">Enseignants</div>
+      </div>
+      <div class="scard green">
+        <div class="scard-icon">&#x1F4B0;</div>
+        <div class="scard-val">{{ total_salary|floatformat:0|default:0 }} F</div>
+        <div class="scard-label">Masse salariale</div>
+      </div>
+      <div class="scard amber">
+        <div class="scard-icon">&#x2714;</div>
+        <div class="scard-val">{{ total_paid|floatformat:0|default:0 }} F</div>
+        <div class="scard-label">Salaires payés</div>
+      </div>
+      <div class="scard rose">
+        <div class="scard-icon">&#x26A0;</div>
+        <div class="scard-val">{{ total_remaining|floatformat:0|default:0 }} F</div>
+        <div class="scard-label">Reste à payer</div>
+      </div>
+    </div>
+
+    <div class="filter-box">
+      <form method="get" class="filter-row">
+        <div class="filter-search">
+          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
+          </svg>
+          <input type="text" name="q" placeholder="Rechercher un enseignant..." value="{{ search }}">
+        </div>
+        <input type="month" name="mois" value="{{ mois }}" class="filter-input">
+        <select name="statut">
+          <option value="all">Tous les statuts</option>
+          <option value="paye" {% if filter_statut == "paye" %}selected{% endif %}>Payé</option>
+          <option value="partiel" {% if filter_statut == "partiel" %}selected{% endif %}>Partiel</option>
+          <option value="en_attente" {% if filter_statut == "en_attente" %}selected{% endif %}>En attente</option>
+        </select>
+        <button type="submit" class="btn-filter">Filtrer</button>
+      </form>
+    </div>
+
+    <div class="table-card">
+      <div class="table-card-head">
+        <h3>Liste des enseignants</h3>
+        <span>{{ enseignants|length }} enseignant(s)</span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Enseignant</th>
+              <th>Département</th>
+              <th class="center">Mois</th>
+              <th class="right">Salaire</th>
+              <th class="right">Payé</th>
+              <th class="center">Statut</th>
+              <th class="center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in enseignants %}
+            <tr>
+              <td>
+                <div class="etu-name">
+                  <div class="etu-avatar">{{ e.name|first|upper }}</div>
+                  <div>
+                    <div class="etu-label">{{ e.name }}</div>
+                    <div class="amount-sub">{{ e.email|default:"Aucun email" }}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge-mono">{{ e.departement|default:"N/A" }}</span></td>
+              <td class="center"><span class="badge-level">{{ e.mois_concerne|default:"-" }}</span></td>
+              <td class="right"><div class="amount-main">{{ e.salaire|floatformat:0 }} FCFA</div></td>
+              <td class="right"><div class="amount-main">{{ e.montant_paye|floatformat:0 }} FCFA</div></td>
+              <td class="center">
+                {% if e.statut == "paye" %}
+                  <span class="badge-status badge-paye"><span class="dot"></span>Payé</span>
+                {% elif e.statut == "partiel" %}
+                  <span class="badge-status badge-partiel"><span class="dot"></span>Partiel</span>
+                {% else %}
+                  <span class="badge-status badge-nonpaye"><span class="dot"></span>En attente</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="action-row">
+                  <button class="btn-pay" onclick="openPayModal('{{ e.id }}','{{ e.name }}')">Payer</button>
+                  <form method="post" action="{% url 'delete_enseignant' e.id %}" onsubmit="return confirm('Supprimer {{ e.name }} ?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-del">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7L5 7M10 11V17M14 11V17M6 7L7 20A2 2 0 009 22H15A2 2 0 0017 20L18 7M9 7V4A1 1 0 0110 3H14A1 1 0 0115 4V7" />
+                      </svg>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="empty-td">
+                <div class="empty-circle">&#x1F468;&#x200D;&#x1F3EB;</div>
+                <div class="empty-title">Aucun enseignant</div>
+                <div class="empty-sub">Ajoutez votre premier enseignant.</div>
+                <button class="btn-empty" onclick="document.getElementById('modal-add').classList.add('open')">Ajouter</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal Ajouter -->
+  <div id="modal-add" class="modal-wrap">
+    <div class="modal-bg" onclick="document.getElementById('modal-add').classList.remove('open')"></div>
+    <div class="modal-center">
+      <div class="modal-box">
+        <div class="modal-head">
+          <div class="modal-head-left">
+            <div class="modal-icon" style="background:#EEF2FF;">&#x1F468;&#x200D;&#x1F3EB;</div>
+            <div>
+              <div class="modal-title">Nouvel enseignant</div>
+              <div class="modal-sub">Ajouter un enseignant</div>
+            </div>
+          </div>
+          <button class="modal-close" onclick="document.getElementById('modal-add').classList.remove('open')">&#x2715;</button>
+        </div>
+        <form method="post" action="{% url 'add_enseignant' %}">
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="field">
+              <label>Nom complet</label>
+              <input type="text" name="name" placeholder="ex. Amadou Diallo" required>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="email@univ.sn">
+              </div>
+              <div class="field">
+                <label>Département</label>
+                <input type="text" name="departement" placeholder="ex. Informatique">
+              </div>
+            </div>
+            <div class="field-grid">
+              <div class="field">
+                <label>Type</label>
+                <select name="type">
+                  <option value="permanent">Permanent</option>
+                  <option value="vacataire">Vacataire</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Salaire (FCFA)</label>
+                <input type="number" name="salaire" placeholder="400000" required>
+              </div>
+            </div>
+            <div class="field">
+              <label>Mois concerné</label>
+              <input type="month" name="mois_concerne" value="{{ mois_courant }}">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn-cancel" onclick="document.getElementById('modal-add').classList.remove('open')">Annuler</button>
+              <button type="submit" class="btn-submit">Enregistrer</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Paiement -->
+  <div id="modal-pay" class="modal-wrap">
+    <div class="modal-bg" onclick="document.getElementById('modal-pay').classList.remove('open')"></div>
+    <div class="modal-center">
+      <div class="modal-box">
+        <div class="modal-head">
+          <div>
+            <div class="modal-title">Paiement du salaire</div>
+            <div class="modal-sub" id="pay-name"></div>
+          </div>
+        </div>
+        <form method="post" action="{% url 'pay_enseignant' %}">
+          {% csrf_token %}
+          <input type="hidden" name="enseignant_id" id="pay-id">
+          <div class="modal-body">
+            <div class="field">
+              <label>Montant (FCFA)</label>
+              <input type="number" name="montant" placeholder="ex. 450000" required>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn-cancel" onclick="document.getElementById('modal-pay').classList.remove('open')">Annuler</button>
+              <button type="submit" class="btn-submit green">Valider le paiement</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openPayModal(id, name) {
+      document.getElementById("pay-id").value = id;
+      document.getElementById("pay-name").innerHTML = name;
+      document.getElementById("modal-pay").classList.add("open");
+    }
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") {
+        document.getElementById("modal-add").classList.remove("open");
+        document.getElementById("modal-pay").classList.remove("open");
+      }
+    });
+  </script>
+
+  {% endblock %}

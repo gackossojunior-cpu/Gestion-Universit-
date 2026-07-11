@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UCCB — Mon Espace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f0f4f8;color:#1e2d40;}
+
+/* NAVBAR */
+.navbar{background:#1e2d40;padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo{width:36px;height:36px;border-radius:9px;background:#c8972a;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;}
+.nav-brand-text{color:#fff;font-weight:700;font-size:15px;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-user{color:rgba(255,255,255,.8);font-size:13px;}
+.btn-logout{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);padding:6px 14px;border-radius:6px;font-size:13px;text-decoration:none;transition:background .2s;}
+.btn-logout:hover{background:rgba(255,255,255,.2);}
+.btn-accueil{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15);padding:6px 14px;border-radius:6px;font-size:13px;text-decoration:none;margin-right:4px;}
+
+/* LAYOUT */
+.container{max-width:1100px;margin:0 auto;padding:28px 20px 60px;}
+
+/* CARTE INFO ÉTUDIANT */
+.etu-card{background:#fff;border-radius:14px;padding:22px 28px;margin-bottom:24px;border-left:5px solid #1e2d40;box-shadow:0 2px 12px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.etu-nom{font-size:18px;font-weight:700;color:#1e2d40;}
+.etu-sub{font-size:13px;color:#6b7280;margin-top:3px;}
+.badge-regle{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+.badge-ok{background:#d1fae5;color:#065f46;}
+.badge-ko{background:#fee2e2;color:#991b1b;}
+
+/* ALERTE impayé */
+.alert-finance{background:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:14px 18px;border-radius:10px;margin-bottom:24px;font-size:13px;line-height:1.6;}
+
+/* SECTIONS */
+.section-title{font-size:16px;font-weight:700;color:#1e2d40;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-title i{color:#4a7ab5;}
+
+/* PROGRAMME */
+.prog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:32px;}
+.ue-card{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.05);border-top:3px solid #2c5282;}
+.ue-nom{font-size:13px;font-weight:700;color:#1e2d40;margin-bottom:8px;}
+.ue-credits{font-size:11px;color:#6b7280;margin-bottom:8px;}
+.mat-list{list-style:none;}
+.mat-list li{font-size:12px;color:#374151;padding:3px 0;border-bottom:1px solid #f3f4f6;display:flex;justify-content:space-between;}
+.mat-list li:last-child{border:none;}
+.mat-cr{color:#4a7ab5;font-weight:600;}
+
+/* RÉSULTATS */
+.sem-block{background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.sem-titre{font-size:14px;font-weight:700;color:#1e2d40;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f0f4f8;}
+.res-table{width:100%;border-collapse:collapse;font-size:12px;}
+.res-table th{background:#f0f4f8;padding:7px 10px;text-align:center;font-weight:600;color:#374151;}
+.res-table td{padding:7px 10px;border-bottom:1px solid #f3f4f6;color:#1e2d40;text-align:center;}
+.res-table tr:last-child td{border:none;}
+.mok{color:#065f46;font-weight:700;}
+.mko{color:#991b1b;font-weight:700;}
+.dec-ok{background:#d1fae5;color:#065f46;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;}
+.dec-ko{background:#fee2e2;color:#991b1b;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;}
+.empty-msg{text-align:center;padding:40px;color:#9ca3af;font-size:14px;}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">U</div>
+    <span class="nav-brand-text">Espace Étudiant</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user"><i class="fas fa-user-graduate"></i> {{ request.session.etudiant_nom }}</span>
+    <a href="{% url 'portail_accueil' %}" class="btn-accueil"><i class="fas fa-th-large"></i> Accueil</a>
+    <a href="{% url 'logout_etudiant' %}" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Carte identité -->
+  <div class="etu-card">
+    <div>
+      <div class="etu-nom">{{ etudiant.nom|upper }} {{ etudiant.prenom }}</div>
+      <div class="etu-sub">
+        Matricule : <strong>{{ etudiant.matricule }}</strong> &nbsp;|&nbsp;
+        {{ etudiant.cycle }} &nbsp;|&nbsp;
+        Semestre : <strong>{{ etudiant.semestre }}</strong> &nbsp;|&nbsp;
+        {{ etudiant.annee_academique.nom }}
+      </div>
+    </div>
+    <div>
+      {% if en_regle %}
+      <span class="badge-regle badge-ok"><i class="fas fa-check-circle"></i> En règle</span>
+      {% else %}
+      <span class="badge-regle badge-ko"><i class="fas fa-exclamation-circle"></i> Impayés en cours</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Alerte si pas en règle -->
+  {% if not en_regle %}
+  <div class="alert-finance">
+    <strong><i class="fas fa-exclamation-triangle"></i> Situation financière en attente</strong><br>
+    Vos résultats du semestre en cours sont temporairement masqués. Veuillez régulariser votre situation auprès du secrétariat.
+    Vous pouvez consulter vos résultats des semestres précédents ci-dessous.
+  </div>
+  {% endif %}
+
+  <!-- Programme du semestre -->
+  <div class="section-title"><i class="fas fa-book-open"></i> Programme — {{ etudiant.semestre }}</div>
+  {% if unites %}
+  <div class="prog-grid">
+    {% for ue in unites %}
+    <div class="ue-card">
+      <div class="ue-nom">{{ ue.nom }}</div>
+      <div class="ue-credits"><i class="fas fa-star" style="color:#c8972a;font-size:10px;"></i> {{ ue.credits_total }} crédits</div>
+      <ul class="mat-list">
+        {% for mat in ue.matieres.all %}
+        <li>{{ mat.nom }} <span class="mat-cr">{{ mat.credits }} cr.</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-msg">Programme non encore saisi pour ce semestre.</div>
+  {% endif %}
+
+  <!-- Résultats par semestre -->
+  <div class="section-title"><i class="fas fa-chart-bar"></i> Mes Résultats</div>
+
+  {% if resultats %}
+    {% for sem, ligne in resultats.items %}
+    <div class="sem-block">
+      <div class="sem-titre">
+        Semestre {{ sem }} &nbsp;—&nbsp;
+        <span class="{% if ligne.decision == 'ADMIS' %}dec-ok{% else %}dec-ko{% endif %}">{{ ligne.decision }}</span>
+        &nbsp; Moyenne : <strong>{{ ligne.moyenne_semestre|floatformat:2 }}/20</strong>
+        &nbsp; Crédits : {{ ligne.total_credits_valides }}/{{ ligne.total_credits_semestre }}
+      </div>
+      <table class="res-table">
+        <thead>
+          <tr>
+            <th>Unité d'Enseignement</th>
+            <th>Matière</th>
+            <th>Note /20</th>
+            <th>Moyenne UE</th>
+            <th>Validée</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ue_data in ligne.ues_detail %}
+            {% for m_data in ue_data.matieres %}
+            <tr>
+              {% if forloop.first %}
+              <td rowspan="{{ ue_data.matieres|length }}" style="font-weight:600;vertical-align:top;padding-top:10px;">{{ ue_data.ue.nom }}</td>
+              {% endif %}
+              <td>{{ m_data.matiere.nom }}</td>
+              <td>
+                {% if m_data.non_saisi %}—
+                {% elif m_data.is_absent %}<span style="color:#9ca3af;">ABS</span>
+                {% else %}
+                  <span class="{% if m_data.note_calculee >= 10 %}mok{% elif m_data.note_calculee < 6 %}mko{% endif %}">
+                    {{ m_data.note_calculee|floatformat:2 }}
+                  </span>
+                {% endif %}
+              </td>
+              {% if forloop.first %}
+              <td rowspan="{{ ue_data.matieres|length }}" style="vertical-align:middle;text-align:center;">
+                <span class="{% if ue_data.moyenne_ue >= 10 %}mok{% else %}{% if ue_data.moyenne_ue < 6 %}mko{% endif %}{% endif %}">
+                  {{ ue_data.moyenne_ue|floatformat:2 }}
+                </span>
+              </td>
+              <td rowspan="{{ ue_data.matieres|length }}" style="vertical-align:middle;text-align:center;">
+                {% if ue_data.est_validee %}<span style="color:#065f46;font-weight:700;">Oui</span>
+                {% else %}<span style="color:#991b1b;">Non</span>{% endif %}
+              </td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-msg">
+      {% if not en_regle %}
+      Résultats du semestre en cours masqués. Régularisez votre situation financière.
+      {% else %}
+      Aucun résultat disponible pour le moment.
+      {% endif %}
+    </div>
+  {% endif %}
+
+</div>
+</body>
+</html>

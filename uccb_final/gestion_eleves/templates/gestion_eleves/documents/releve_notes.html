@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Relevé — {{ etudiant.nom }}</title>
+<style>
+@page { size: a4; margin: 0; }
+html, body {
+  margin: 0; padding: 0;
+  background: #525659;
+  display: flex; justify-content: center;
+  font-family: 'Times New Roman', Times, serif;
+}
+.page {
+  background: #fff;
+  width: 21cm; min-height: 29.7cm;
+  position: relative;
+  box-shadow: 0 0 15px rgba(0,0,0,.3);
+  box-sizing: border-box;
+}
+.inner {
+  position: absolute;
+  top: 1cm; left: 1cm; right: 1cm; bottom: 1cm;
+  border: 4px double black;
+  padding: 22px 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+.logo { width: 85px; height: auto; display: block; }
+.motto { font-size: 9px; font-weight: bold; font-style: italic; display: block; margin-top: 3px; margin-bottom: 18px; }
+.title {
+  border: 2px solid black;
+  text-align: center; padding: 7px;
+  width: 80%; margin: 0 auto 12px auto;
+  font-size: 15px; font-weight: bold;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.stu {
+  text-align: center; margin-bottom: 12px;
+  font-size: 12px; line-height: 1.55;
+  border-bottom: 1px solid #ccc; padding-bottom: 8px;
+}
+table { width: 100%; border-collapse: collapse; margin-bottom: 11px; }
+th, td { border: 1px solid black; padding: 5px 6px; text-align: center; font-size: 11.5px; }
+th { background: #f0f0f0; font-weight: bold; }
+.rbar {
+  display: flex; justify-content: space-around;
+  border: 1.5px solid black; padding: 8px;
+  font-weight: bold; font-size: 12px;
+  background: #f2f2f2; margin-bottom: 14px;
+  flex-wrap: wrap; gap: 6px;
+}
+.sig-zone { display: flex; justify-content: flex-end; margin-top: 40px; padding-top: 16px; }
+.sig-bloc { text-align: center; font-size: 12px; min-width: 220px; }
+.sig-bloc .lieu { font-size: 11.5px; margin-bottom: 28px; }
+.sig-bloc .nom { font-size: 13px; font-weight: bold; display: block; margin-bottom: 4px; }
+.sig-bloc .titre { font-size: 11.5px; color: #333; }
+.footer {
+  position: absolute;
+  bottom: 18px; left: 40px; right: 40px;
+  text-align: center; font-size: 9px;
+  border-top: 1.5px solid black;
+  padding-top: 6px; line-height: 1.4;
+}
+.sem-bar {
+  position: fixed; top: 10px; left: 50%;
+  transform: translateX(-50%); z-index: 100;
+  background: rgba(10,22,40,.85);
+  padding: 7px 16px; border-radius: 8px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: Arial, sans-serif; font-size: 12px; color: #fff;
+}
+.sem-bar select { padding: 4px 10px; border-radius: 5px; border: none; font-size: 12px; cursor: pointer; }
+.sem-bar button {
+  background: #c8972a; color: #fff; border: none;
+  padding: 4px 12px; border-radius: 5px; cursor: pointer; font-size: 12px;
+}
+@media print {
+  body { background: none; }
+  .page { box-shadow: none; margin: 0; }
+  .sem-bar { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="sem-bar">
+  <span>Semestre :</span>
+  <select onchange="window.location.href='?semestre='+this.value">
+    {% for s in semestres_disponibles %}
+    <option value="{{ s }}" {% if s == semestre_selectionne %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  <button onclick="window.print()">Imprimer</button>
+</div>
+
+<div class="page">
+  <div class="inner">
+
+    <img src="{% static 'gestion_eleves/img/logo_uccb.jpg' %}" class="logo" alt="UCCB">
+    <span class="motto">Omnia Vincit Labor</span>
+
+    <div class="title">RELEVÉ DE NOTES — {{ semestre_affiche|default:etudiant.semestre }}</div>
+
+    <div class="stu">
+      <strong>{{ titre }} {{ etudiant.nom|upper }} {{ etudiant.prenom }}</strong><br>
+      Matricule : <strong>{{ etudiant.matricule }}</strong>
+      &nbsp;|&nbsp; Parcours : <strong>{{ parcours }}</strong><br>
+      <strong>{{ etudiant.cycle }}</strong>
+      &nbsp;|&nbsp; Année Académique <strong>{{ etudiant.annee_academique.nom }}</strong>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:center;width:52%;">UNITÉS D'ENSEIGNEMENT</th>
+          <th style="width:24%;">CRÉDITS</th>
+          <th style="width:24%;">MOYENNE /20</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for item in structure %}
+      <tr>
+        <td style="text-align:center;padding:5px 6px;">{{ item.ue.nom|upper }}</td>
+        <td>{{ item.total_credits_ue }}</td>
+        <td style="font-weight:bold;color:{% if item.moyenne_ue >= 10 %}#155724{% elif item.moyenne_ue < 6 %}#721c24{% else %}#000{% endif %};">
+          {{ item.moyenne_ue|floatformat:2 }}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3" style="text-align:center;color:#888;font-style:italic;">Aucune UE pour ce semestre.</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="rbar">
+      <span>MOYENNE : {{ moyenne_generale|floatformat:2 }} / 20</span>
+      <span>CRÉDITS : {{ total_credits_valides }} / {{ total_credits_semestre }}</span>
+      <span>RÉSULTAT : {{ decision }}</span>
+      {% if mention != 'NÉANT' and mention != 'NEANT' %}<span>MENTION : {{ mention }}</span>{% endif %}
+    </div>
+
+    <div class="sig-zone">
+      <div class="sig-bloc">
+        <div class="lieu">Fait à {% if parametres %}{{ parametres.ville_signature }}{% endif %}, le {{ date }}</div>
+        <span class="nom">{% if parametres %}{{ parametres.nom_secretaire|upper }}{% endif %}</span>
+        <span class="titre">{{ titre_secretaire }}</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      Établissement Privé d'Enseignement Supérieur conventionné — Arrêté N°9554/MESRSIT/CAB du 21/09/2020<br>
+      UCCB — {% if parametres %}{{ parametres.ville_signature }}{% endif %}, République du Congo
+    </div>
+
+  </div>
+</div>
+
+<script>
+window.history.pushState(null, '', window.location.href);
+window.onpopstate = function() { window.history.pushState(null, '', window.location.href); };
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+{% extends 'gestion_eleves/faculte/base_faculte.html' %}
+{% block title %}Dashboard — Espace Faculté{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+{% block content %}
+
+<div class="row g-3 mb-5">
+  <div class="col-sm-6 col-xl-4">
+    <div class="card scard">
+      <div class="d-flex align-items-center gap-3">
+        <div style="width:50px;height:50px;border-radius:13px;background:rgba(15,32,39,.07);display:flex;align-items:center;justify-content:center;font-size:22px;">🎓</div>
+        <div>
+          <div class="scard-lbl">Total Étudiants</div>
+          <div class="scard-val">{{ stats.total }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% for fac in stats.par_faculte %}
+  <div class="col-sm-6 col-xl-4">
+    <div class="card scard" style="border-left-color:#2c5364;">
+      <div class="d-flex align-items-center gap-3">
+        <div style="width:50px;height:50px;border-radius:13px;background:#dbeafe;display:flex;align-items:center;justify-content:center;">
+          <span style="background:#0f2027;color:#00b4d8;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:700;">{{ fac.code }}</span>
+        </div>
+        <div>
+          <div class="scard-lbl">{{ fac.nom|truncatechars:22 }}</div>
+          <div class="scard-val" style="color:#2c5364;">{{ fac.nb }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="col-sm-6 col-xl-4">
+    <div class="card scard" style="border-left-color:#c8972a;">
+      <div class="d-flex align-items-center gap-3">
+        <div style="width:50px;height:50px;border-radius:13px;background:#fff8e8;display:flex;align-items:center;justify-content:center;font-size:22px;">📅</div>
+        <div>
+          <div class="scard-lbl">Année Académique Active</div>
+          <div style="font-size:18px;font-weight:700;color:#c8972a;line-height:1.2;">{{ annee_active.nom|default:"—" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Derniers étudiants -->
+<div class="card">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+    <span style="font-size:15px;font-weight:600;color:#0f2027;">Derniers étudiants inscrits</span>
+    <a href="{% url 'fac_liste_classe' %}" class="btn btn-sm btn-ink px-3">Voir une classe →</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th class="text-center">Matricule</th>
+          <th class="text-center">Nom &amp; Prénom</th>
+          <th class="text-center">Genre</th>
+          <th class="text-center">Faculté</th>
+          <th class="text-center">Portail / Filière</th>
+          <th class="text-center">Semestre</th>
+          <th class="text-center">Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for e in recent %}
+      <tr>
+        <td class="text-center"><code style="color:#00b4d8;font-size:11px;">{{ e.matricule }}</code></td>
+        <td class="text-center">
+          <div style="font-weight:600;">{{ e.nom|upper }} {{ e.prenom }}</div>
+          <small class="text-muted">{{ e.email }}</small>
+        </td>
+        <td class="text-center"><span style="font-weight:600;">{{ e.genre }}</span></td>
+        <td class="text-center">
+          <span style="background:#0f2027;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">{{ e.faculte.code }}</span>
+        </td>
+        <td class="text-center">
+          {% if e.semestre == 'S1' or e.semestre == 'S2' %}
+            <span style="color:#1a3a7c;font-size:12px;font-weight:600;">{{ e.portail.nom|default:"—" }}</span>
+          {% else %}
+            <span style="color:#6d28d9;font-size:12px;font-weight:600;">{{ e.filiere.nom|default:"—" }}</span>
+          {% endif %}
+        </td>
+        <td class="text-center"><span class="b-sem">{{ e.semestre }}</span></td>
+        <td class="text-center">
+          {% if e.statut == 'actif' %}
+            <span class="b-ok">Actif</span>
+          {% elif e.statut == 'diplome' %}
+            <span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">Diplômé</span>
+          {% else %}
+            <span class="b-ko">Abandonné</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="text-center py-5 text-muted">
+        <div style="font-size:36px;margin-bottom:8px;">📭</div>Aucun étudiant enregistré.
+      </td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

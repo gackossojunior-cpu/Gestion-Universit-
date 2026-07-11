@@ -1,0 +1,102 @@
+{% extends 'gestion_eleves/faculte/base_faculte.html' %}
+{% block title %}Passage de Semestre — Secrétariat{% endblock %}
+{% block page_title %}Passage de Semestre{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <p class="text-muted small mb-0">⚠️ Seuls les étudiants avec des résultats archivés peuvent être promus.</p>
+  <div class="d-flex gap-2">
+    <a href="{% url 'sec_orientation_s3' %}" class="btn btn-outline-primary px-3 small">🎯 Orientation S3</a>
+    <a href="{% url 'fac_dashboard' %}" class="btn btn-outline-secondary px-3 small">← Retour</a>
+  </div>
+</div>
+<!-- Filtres -->
+<div class="card mb-4" style="border-left:4px solid var(--gold);">
+  <div class="card-body p-3">
+    <form method="GET" class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="fl">Faculté</label>
+        <select name="faculte" class="form-select" onchange="this.form.submit()">
+          <option value="">— Sélectionner —</option>
+          {% for f in facultes %}<option value="{{ f.id }}" {% if f.id == fac_id %}selected{% endif %}>{{ f.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="fl">Semestre actuel</label>
+        <select name="semestre" class="form-select" onchange="this.form.submit()">
+          <option value="">— Semestre —</option>
+          {% for s in semestres %}<option value="{{ s }}" {% if s == semestre_selected %}selected{% endif %}>Semestre {{ s|slice:"1:" }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2"><button type="submit" class="btn btn-navy w-100 mt-3">Filtrer</button></div>
+    </form>
+  </div>
+</div>
+
+{% if etudiants %}
+<form action="{% url 'sec_appliquer_promotion' %}" method="POST" id="pForm">
+  {% csrf_token %}
+  <div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+      <span style="font-family:''Inter',sans-serif',serif;font-size:17px;color:#0a1628;">{{ etudiants|length }} étudiant(s) en {{ semestre_selected }}</span>
+      <div class="d-flex align-items-center gap-2">
+        <label class="small text-muted mb-0 fw-bold">Promouvoir vers :</label>
+        <select name="nouveau_semestre" class="form-select form-select-sm" style="width:auto;" required>
+          <option value="">Cible…</option>
+          {% for s in semestres %}<option value="{{ s }}">Semestre {{ s|slice:"1:" }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn btn-navy btn-sm px-3"><i class="fas fa-level-up-alt me-1"></i>Appliquer</button>
+      </div>
+    </div>
+    {% if semestre_selected == 'S2' %}
+    <div class="alert alert-warning mx-3 mt-3 mb-0 py-2 small">
+      <i class="fas fa-exclamation-triangle me-1"></i>
+      Pour le passage S2→S3, utilisez la <a href="{% url 'sec_orientation_s3' %}" class="fw-bold">page Orientation S3</a> dédiée avec choix de filière.
+    </div>
+    {% endif %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead><tr>
+          <th style="width:38px;"><input type="checkbox" id="chkAll" class="form-check-input"></th>
+          <th>Étudiant</th><th class="text-center">Semestre</th>
+          <th class="text-center">Parcours</th><th class="text-center">Statut résultat</th>
+        </tr></thead>
+        <tbody>
+        {% for e in etudiants %}
+        <tr>
+          <td><input type="checkbox" name="etudiants_selectionnes" value="{{ e.id }}" class="form-check-input ecb"></td>
+          <td>
+            <div style="font-weight:600;">{{ e.nom|upper }} {{ e.prenom }}</div>
+            <code style="font-size:10px;color:#c8972a;">{{ e.matricule }}</code>
+          </td>
+          <td class="text-center"><span class="b-sem">{{ e.semestre }}</span></td>
+          <td class="text-center"><small>{{ e.get_parcours }}</small></td>
+          <td class="text-center">
+            {% if e.id in resultats_map %}
+              <span style="color:#27ae60;font-size:12px;">✅ Résultats archivés</span>
+            {% else %}
+              <span style="color:#e67e22;font-size:12px;">⚠️ Non encore calculé</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>
+{% elif fac_id and semestre_selected %}
+<div class="card text-center py-5"><div style="font-size:40px;">📭</div><p class="text-muted mt-3">Aucun étudiant trouvé.</p></div>
+{% else %}
+<div class="card text-center py-5" style="border:2px dashed #dde3ee;background:transparent;box-shadow:none;">
+  <div style="font-size:44px;margin-bottom:12px;">🎓</div>
+  <p class="text-muted">Sélectionnez une <strong>faculté</strong> et un <strong>semestre</strong>.</p>
+</div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('chkAll')?.addEventListener('change',function(){
+  document.querySelectorAll('.ecb').forEach(c=>c.checked=this.checked);
+});
+</script>
+{% endblock %}

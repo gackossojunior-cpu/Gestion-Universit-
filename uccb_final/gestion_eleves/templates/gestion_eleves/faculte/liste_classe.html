@@ -1,0 +1,104 @@
+{% extends 'gestion_eleves/faculte/base_faculte.html' %}
+{% load custom_filters %}
+{% block title %}Classe — Enseignant{% endblock %}
+{% block page_title %}Liste de la Classe{% endblock %}
+{% block content %}
+<div class="card mb-4" style="border-left:4px solid var(--ac);">
+  <div class="card-body p-3">
+    <form method="GET" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="fl">Faculté</label>
+        <select name="faculte" class="form-select" id="sFac" onchange="loadSubs()">
+          <option value="">— Sélectionner —</option>
+          {% for f in facultes %}<option value="{{ f.id }}" {% if f.id == fac_id %}selected{% endif %}>{{ f.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="fl">Semestre</label>
+        <select name="semestre" class="form-select" id="sSem" onchange="togglePF()">
+          <option value="">— Semestre —</option>
+          {% for s in semestres %}<option value="{{ s }}" {% if s == sem %}selected{% endif %}>Sem. {{ s|slice:"1:" }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3" id="pDiv">
+        <label class="fl">Portail</label>
+        <select name="portail" class="form-select" id="sPortail">
+          <option value="">Tous</option>
+          {% for p in portails %}<option value="{{ p.id }}" {% if p.id == portail_id %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3" id="fDiv">
+        <label class="fl">Filière</label>
+        <select name="filiere" class="form-select" id="sFiliere">
+          <option value="">Toutes</option>
+          {% for f in filieres %}<option value="{{ f.id }}" {% if f.id == filiere_id %}selected{% endif %}>{{ f.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-1"><button type="submit" class="btn btn-ink w-100">→</button></div>
+    </form>
+  </div>
+</div>
+
+{% if etudiants.exists %}
+<div class="card">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+    <span style="font-size:14px;font-weight:700;color:#0f2027;">{{ etudiants.count }} étudiant(s)</span>
+    <div class="d-flex gap-2">
+      <a href="{% url 'fac_saisie_notes' %}?faculte={{ fac_id }}&semestre={{ sem }}" class="btn btn-sm btn-ac">✏️ Notes</a>
+      <a href="{% url 'fac_deliberation' %}?faculte={{ fac_id }}&semestre={{ sem }}" class="btn btn-sm btn-ink">📊 Délibérer</a>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead><tr><th>Matricule</th><th>Identité</th><th class="text-center">Parcours</th><th class="text-center">Semestre</th><th class="text-center">Résultat archivé</th><th class="text-center">Action</th></tr></thead>
+      <tbody>
+      {% for e in etudiants %}
+      <tr>
+        <td><code style="color:#00b4d8;">{{ e.matricule }}</code></td>
+        <td><div style="font-weight:600;">{{ e.nom|upper }} {{ e.prenom }}</div><small class="text-muted">{{ e.email }}</small></td>
+        <td class="text-center"><small>{{ e.get_parcours }}</small></td>
+        <td class="text-center"><span class="b-sem">{{ e.semestre }}</span></td>
+        <td class="text-center">
+          {% if e.id in resultats_map %}
+            {% with r=resultats_map|get_item:e.id %}
+            <span class="{% if r.decision == 'ADMIS' %}b-ok{% else %}b-ko{% endif %}">{{ r.decision }} · {{ r.moyenne_generale|floatformat:2 }}/20</span>
+            {% endwith %}
+          {% else %}<span class="text-muted small">Non calculé</span>{% endif %}
+        </td>
+        <td class="text-center">
+          <a href="{% url 'fac_note_individuelle' e.id %}" class="btn btn-sm btn-outline-primary" title="Modifier notes">✏️</a>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% elif fac_id and sem %}
+<div class="card text-center py-5"><div style="font-size:36px;">📭</div><p class="text-muted mt-3">Aucun étudiant trouvé.</p></div>
+{% else %}
+<div class="card text-center py-5" style="border:2px dashed #dde8f0;background:transparent;box-shadow:none;">
+  <div style="font-size:40px;margin-bottom:10px;">🔍</div><p class="text-muted">Sélectionnez une <strong>faculté</strong> et un <strong>semestre</strong>.</p>
+</div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+function loadSubs(){
+  const id=document.getElementById('sFac').value;if(!id)return;
+  fetch('/api/portails/?faculte_id='+id).then(r=>r.json()).then(d=>{
+    const s=document.getElementById('sPortail');s.innerHTML='<option value="">Tous</option>';
+    d.portails.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.nom;s.appendChild(o);});
+  });
+  fetch('/api/filieres/?faculte_id='+id).then(r=>r.json()).then(d=>{
+    const s=document.getElementById('sFiliere');s.innerHTML='<option value="">Toutes</option>';
+    d.filieres.forEach(f=>{const o=document.createElement('option');o.value=f.id;o.textContent=f.nom;s.appendChild(o);});
+  });
+}
+function togglePF(){
+  const n=parseInt(document.getElementById('sSem').value.replace('S',''))||0;
+  document.getElementById('pDiv').style.opacity=n<=2?'1':'.4';
+  document.getElementById('fDiv').style.opacity=n>2?'1':'.4';
+}
+</script>
+{% endblock %}

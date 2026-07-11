@@ -1,0 +1,116 @@
+{% extends 'gestion_eleves/enseignant/base_enseignant.html' %}
+{% block title %}Délibération — Enseignant{% endblock %}
+{% block page_title %}Délibération &amp; Calcul des Moyennes{% endblock %}
+{% block extra_css %}
+<style>
+.scol{position:sticky;left:0;background:#fff!important;z-index:5;border-right:3px solid #0f2027!important;min-width:170px;}
+.th0{background:#0f2027!important;color:#fff!important;font-size:10px;text-align:center;}
+.th-ue{background:#1a3a5c!important;color:#fff!important;font-size:9px;font-weight:700;text-align:center;}
+.th-sub{background:#2c5282!important;color:#fff!important;font-size:8px;text-align:center;}
+.mok{color:#059669;font-weight:700;} .mko{color:#dc2626;font-weight:700;} .mmid{color:#d97706;font-weight:700;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="text-muted small mb-0">Calculez les moyennes. "Archiver" sauvegarde pour le passage de semestre.</p>
+  <a href="{% url 'ens_liste_classe' %}" class="btn btn-sm btn-outline-secondary px-3">← Classe</a>
+</div>
+<div class="card mb-4" style="border-left:4px solid var(--ac);">
+  <div class="card-body p-3">
+    <form method="GET" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="fl">Faculté</label>
+        <select name="faculte" class="form-select">
+          <option value="">— Sélectionner —</option>
+          {% for f in facultes %}<option value="{{ f.id }}" {% if f.id == fac_id %}selected{% endif %}>{{ f.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="fl">Semestre</label>
+        <select name="semestre" class="form-select">
+          <option value="">— Semestre —</option>
+          {% for s in semestres %}<option value="{{ s }}" {% if s == sem %}selected{% endif %}>Sem. {{ s|slice:"1:" }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-5 d-flex gap-2 align-items-end">
+        <button type="submit" name="save" value="0" class="btn btn-ink flex-fill">Calculer</button>
+        <button type="submit" name="save" value="1" class="btn btn-success flex-fill">Calculer &amp; Archiver</button>
+        {% if structure %}
+        
+        <a href="{% url 'ens_matrice_a3' %}?faculte={{ fac_id }}&semestre={{ sem }}" class="btn btn-danger" target="_blank"><i class="fas fa-file-pdf"></i></a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if structure %}
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle mb-0" style="font-size:11.5px;">
+      <thead>
+        <!-- Ligne 1 : infos fixes + groupes UE + résultats -->
+        <tr>
+          <th class="th0 scol text-center" rowspan="2" style="width:30px;">Rang</th>
+          <th class="th0 scol text-center" rowspan="2" style="min-width:170px;">NOM ET PRÉNOMS</th>
+          {% for ue in unites %}
+          <th class="th-ue" colspan="3">
+            {{ ue.nom|truncatechars:20 }}
+            <br><span style="font-size:8px;opacity:.75;">{{ ue.credits_total }} cr.</span>
+          </th>
+          {% endfor %}
+          <th class="th0 text-center" rowspan="2" style="width:55px;">MOY.<br>GÉN.</th>
+          <th class="th0 text-center" rowspan="2" style="width:45px;">CRÉDITS</th>
+          <th class="th0 text-center" rowspan="2" style="width:70px;">DÉCISION</th>
+          <th class="th0 text-center" rowspan="2" style="width:60px;">MENTION</th>
+        </tr>
+        <!-- Ligne 2 : PTS / CR / MOY par UE -->
+        <tr>
+          {% for ue in unites %}
+          <th class="th-sub" style="width:50px;">PTS</th>
+          <th class="th-sub" style="width:35px;">CR</th>
+          <th class="th-sub" style="width:50px;">MOY</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for ligne in structure %}
+      <tr {% if ligne.decision == 'ADMIS' %}style="background:#f0fdf4;"{% endif %}>
+        <td class="scol text-center" style="font-weight:700;">{{ ligne.rang }}</td>
+        <td class="scol">
+          <div style="font-weight:600;">{{ ligne.etudiant.nom|upper }} {{ ligne.etudiant.prenom }}</div>
+          <code style="font-size:9px;color:#00b4d8;">{{ ligne.etudiant.matricule }}</code>
+        </td>
+        {% for ud in ligne.ues_detail %}
+        <td class="text-center text-muted" style="font-size:10px;">{{ ud.total_points_ue|floatformat:1 }}</td>
+        <td class="text-center text-muted" style="font-size:10px;">{{ ud.total_credits_ue }}</td>
+        <td class="text-center">
+          {% if ud.moyenne_ue >= 10 %}<span class="mok">{{ ud.moyenne_ue|floatformat:2 }}</span>
+          {% elif ud.moyenne_ue >= 6 %}<span class="mmid">{{ ud.moyenne_ue|floatformat:2 }}</span>
+          {% else %}<span class="mko">{{ ud.moyenne_ue|floatformat:2 }}</span>{% endif %}
+        </td>
+        {% endfor %}
+        <td class="text-center">
+          {% if ligne.moyenne_semestre >= 10 %}<span class="mok" style="font-size:13px;">{{ ligne.moyenne_semestre|floatformat:2 }}</span>
+          {% else %}<span class="mko" style="font-size:13px;">{{ ligne.moyenne_semestre|floatformat:2 }}</span>{% endif %}
+        </td>
+        <td class="text-center" style="font-size:11px;">{{ ligne.total_credits_valides }}/{{ ligne.total_credits_semestre }}</td>
+        <td class="text-center">
+          {% if ligne.decision == 'ADMIS' %}<span class="b-ok">ADMIS</span>
+          {% else %}<span class="b-ko">AJOURN&Eacute;</span>{% endif %}
+        </td>
+        <td class="text-center" style="font-size:10px;color:#555;">{{ ligne.mention }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% elif fac_id and sem %}
+<div class="card text-center py-5"><p class="text-muted mt-3">Aucun étudiant trouvé.</p></div>
+{% else %}
+<div class="card text-center py-5" style="border:2px dashed #dde8f0;background:transparent;box-shadow:none;">
+  <p class="text-muted">Sélectionnez une <strong>faculté</strong> et un <strong>semestre</strong>.</p>
+</div>
+{% endif %}
+{% endblock %}

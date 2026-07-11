@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+  {% load static %}
+
+  {% block content %}
+
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <div class="db-wrap">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card blue">
+        <div class="stat-icon" style="background:#EEF2FF;">💰</div>
+        <div class="stat-label">Solde</div>
+        <div class="stat-value">{{ solde|default:"0"|floatformat:0 }}<span>FCFA</span></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon" style="background:#ECFDF5;">📈</div>
+        <div class="stat-label">Revenus</div>
+        <div class="stat-value">{{ income|default:"0"|floatformat:0 }}<span>FCFA</span></div>
+      </div>
+      <div class="stat-card rose">
+        <div class="stat-icon" style="background:#FFF1F2;">📉</div>
+        <div class="stat-label">Dépenses</div>
+        <div class="stat-value">{{ expense|default:"0"|floatformat:0 }}<span>FCFA</span></div>
+      </div>
+    </div>
+
+    <!-- Main grid -->
+    <div class="main-grid">
+
+      <div class="col-left">
+
+        <!-- Étudiants -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-left">
+              <div class="head-icon" style="background:#EEF2FF;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+              </div>
+              <div>
+                <div class="head-title">Étudiants</div>
+                <div class="head-sub">Recouvrement {{ pct_recouvrement|floatformat:1 }}%</div>
+              </div>
+            </div>
+            <a href="{% url 'etudiants' %}" class="link-small">Voir tout →</a>
+          </div>
+          <div class="mini-grid">
+            <div class="mini-stat total">
+              <div class="mini-val">{{ etu.total|default:0 }}</div>
+              <div class="mini-lbl">Total</div>
+            </div>
+            <div class="mini-stat payes">
+              <div class="mini-val">{{ etu.payes|default:0 }}</div>
+              <div class="mini-lbl">Payés</div>
+            </div>
+            <div class="mini-stat partiels">
+              <div class="mini-val">{{ etu.partiels|default:0 }}</div>
+              <div class="mini-lbl">Partiels</div>
+            </div>
+            <div class="mini-stat nonpayes">
+              <div class="mini-val">{{ etu.non_payes|default:0 }}</div>
+              <div class="mini-lbl">Non payés</div>
+            </div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-track">
+              <div class="progress-fill" style="width:{{ pct_recouvrement|floatformat:0 }}%"></div>
+            </div>
+            <div class="progress-meta">{{ total_paye|default:"0" }} / {{ total_attendu|default:"0" }} FCFA collectés</div>
+          </div>
+        </div>
+
+        <!-- Salaires -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-left">
+              <div class="head-icon" style="background:#F5F3FF;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2"/>
+                  <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+                  <line x1="12" y1="12" x2="12" y2="16"/>
+                  <line x1="10" y1="14" x2="14" y2="14"/>
+                </svg>
+              </div>
+              <div>
+                <div class="head-title">Salaires</div>
+                <div class="head-sub">Enseignants &amp; Personnel</div>
+              </div>
+            </div>
+          </div>
+          <div class="sal-grid">
+            <div class="sal-item neutral">
+              <div class="sal-label">Total salaires</div>
+              <div class="sal-value">{{ total_salaires|default:"0" }}<span class="sal-currency">FCFA</span></div>
+            </div>
+            <div class="sal-item positive">
+              <div class="sal-label">Total payé</div>
+              <div class="sal-value">{{ total_paye_salaires|default:"0" }}<span class="sal-currency">FCFA</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Retards -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-left">
+              <div class="head-icon" style="background:#FFF1F2;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <div>
+                <div class="head-title">Retards de paiement</div>
+                <div class="head-sub">{{ retard|length }} étudiant{{ retard|length|pluralize:"s" }} en retard</div>
+              </div>
+            </div>
+            {% if retard %}<span class="badge-retard">&#9679; {{ retard|length }}</span>{% endif %}
+          </div>
+          {% if retard %}
+          <div style="overflow-x:auto">
+            <table class="retard-table">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Matricule</th>
+                  <th style="text-align:right">Reste à payer</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for s in retard %}
+                <tr>
+                  <td>{{ s.name }}</td>
+                  <td class="matricule">{{ s.matricule }}</td>
+                  <td class="amount">{{ s.reste }} FCFA</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <div class="empty-text">Aucun retard de paiement</div>
+          </div>
+          {% endif %}
+        </div>
+
+      </div><!-- /col-left -->
+
+      <div class="col-right">
+
+        <!-- Derniers paiements -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="head-title">Derniers paiements</div>
+            <a href="{% url 'transactions' %}" class="link-small">Voir tout</a>
+          </div>
+          {% if derniers_paiements %}
+            {% for t in derniers_paiements %}
+            <div class="tx-row">
+              <div class="tx-dot {% if t.amount > 0 %}in{% else %}out{% endif %}">
+                {% if t.amount > 0 %}&#8593;{% else %}&#8595;{% endif %}
+              </div>
+              <div class="tx-info">
+                <div class="tx-text">{{ t.text }}</div>
+                <div class="tx-date">{{ t.created_at|date:"d M Y" }}</div>
+              </div>
+              <div class="tx-amount {% if t.amount > 0 %}positive{% else %}negative{% endif %}">
+                {% if t.amount > 0 %}+{% endif %}{{ t.amount|floatformat:0 }} <span class="tx-amount-currency">FCFA</span>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-text">Aucune transaction récente</div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Graphique -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-left">
+              <div class="head-icon" style="background:#EEF2FF;">&#x1F4C8;</div>
+              <div>
+                <div class="head-title">Évolution financière</div>
+                <div class="head-sub">Revenus vs Dépenses</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:35px">
+            <canvas id="financeChart" height="210"></canvas>
+          </div>
+        </div>
+
+      </div><!-- /col-right -->
+
+    </div><!-- /main-grid -->
+
+  </div><!-- /db-wrap -->
+
+  <script>
+  (function() {
+    var ctx = document.getElementById("financeChart");
+    if (!ctx || typeof Chart === "undefined") return;
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin"],
+        datasets: [
+          {
+            label: "Revenus",
+            data: {{ revenus_chart|default:"[1200000,1800000,1600000,2400000,2800000,3000000]" }},
+            borderColor: "#10b981",
+            backgroundColor: "rgba(16,185,129,.15)",
+            fill: true,
+            tension: .4
+          },
+          {
+            label: "Dépenses",
+            data: {{ depenses_chart|default:"[800000,900000,1000000,1200000,1500000,1700000]" }},
+            borderColor: "#ef4444",
+            backgroundColor: "rgba(239,68,68,.12)",
+            fill: true,
+            tension: .4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: "bottom" } }
+      }
+    });
+  })();
+  </script>
+
+  {% endblock %}

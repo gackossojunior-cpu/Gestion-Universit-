@@ -1,0 +1,72 @@
+{% extends 'gestion_eleves/faculte/base_faculte.html' %}
+{% block title %}Orientation S3 — Secrétariat{% endblock %}
+{% block page_title %}Orientation vers le Semestre 3{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <p class="text-muted small mb-0">Étudiants <strong>admis en S2</strong> — assignez leur filière de spécialisation.</p>
+  <a href="{% url 'sec_promotion' %}" class="btn btn-outline-secondary px-3 small">← Passage Semestre</a>
+</div>
+{% if etudiants %}
+<form method="POST" id="fS3">
+  {% csrf_token %}
+  <div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+      <span style="font-family:''Inter',sans-serif',serif;font-size:17px;color:#0a1628;">🎯 {{ etudiants.count }} étudiant(s) éligible(s)</span>
+      <span style="background:#c8972a;color:#fff;padding:3px 14px;border-radius:20px;font-size:11px;">Admis S2</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead><tr>
+          <th>Étudiant</th><th class="text-center">Faculté</th>
+          <th class="text-center">Portail actuel</th><th>Filière cible (S3)</th>
+        </tr></thead>
+        <tbody>
+        {% for e in etudiants %}
+        <tr>
+          <td>
+            <div style="font-weight:600;">{{ e.nom|upper }} {{ e.prenom }}</div>
+            <code style="font-size:10px;color:#c8972a;">{{ e.matricule }}</code>
+          </td>
+          <td class="text-center"><span style="background:#0a1628;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">{{ e.faculte.code }}</span></td>
+          <td class="text-center"><span style="color:#1a3a7c;font-weight:600;">🏫 {{ e.portail.nom|default:"—" }}</span></td>
+          <td>
+            <select name="filiere_{{ e.id }}" class="form-select sf" style="max-width:320px;" required>
+              <option value="">— Choisir la spécialité —</option>
+              {% for portail in e.faculte.portails.all %}
+              <optgroup label="Via {{ portail.nom }}">
+                {% for fil in portail.filieres.all %}
+                <option value="{{ fil.id }}">{{ fil.nom }} ({{ fil.code }})</option>
+                {% endfor %}
+              </optgroup>
+              {% endfor %}
+            </select>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer bg-white text-center py-3">
+      <button type="submit" class="btn btn-success px-5 py-2 rounded-pill fw-bold me-2">✅ Valider le passage en S3</button>
+      <a href="{% url 'fac_dashboard' %}" class="btn btn-outline-secondary px-4 rounded-pill">Annuler</a>
+    </div>
+  </div>
+</form>
+{% else %}
+<div class="card text-center py-5" style="border:2px dashed #dde3ee;background:transparent;box-shadow:none;">
+  <div style="font-size:44px;margin-bottom:12px;">🎓</div>
+  <p class="text-muted">Aucun étudiant admis en S2 pour l'instant.</p>
+  <small class="text-muted">Calculez d'abord les résultats du S2 via l'interface Enseignant.</small>
+</div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('fS3')?.addEventListener('submit',function(e){
+  for(let s of document.querySelectorAll('.sf')){
+    if(!s.value){e.preventDefault();alert('Choisissez une filière pour chaque étudiant.');s.focus();return;}
+  }
+  if(!confirm('Confirmer le passage en S3 ? Cette action est irréversible.'))e.preventDefault();
+});
+</script>
+{% endblock %}

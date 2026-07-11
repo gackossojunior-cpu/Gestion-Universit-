@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UCCB — Nouveau mot de passe</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#1e2d40;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.card{background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.3);padding:40px;width:100%;max-width:400px;}
+h2{font-size:19px;font-weight:700;color:#1e2d40;text-align:center;margin-bottom:5px;}
+.sub{font-size:12.5px;color:#6b7280;text-align:center;margin-bottom:24px;}
+.field{margin-bottom:15px;}
+label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;}
+input{width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;}
+input:focus{outline:none;border-color:#1e2d40;}
+.btn{width:100%;padding:12px;background:#1e2d40;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.alert-ok{background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;}
+.alert-err{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;}
+.back{text-align:center;margin-top:18px;font-size:13px;}<br>.back a{color:#1e2d40;font-weight:600;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>Nouveau mot de passe</h2>
+  <p class="sub">Enseignant — entrez votre identifiant et nouveau mot de passe</p>
+  {% for msg in messages %}
+    <div class="{% if 'jour' in msg.message %}alert-ok{% else %}alert-err{% endif %}">{{ msg }}</div>
+  {% endfor %}
+  <form method="POST">
+    {% csrf_token %}
+    <div class="field">
+      <label>Identifiant (nom d'utilisateur)</label>
+      <input type="text" name="username" placeholder="Votre identifiant" required autofocus>
+    </div>
+    <div class="field">
+      <label>Nouveau mot de passe</label>
+      <input type="password" name="mot_de_passe" placeholder="Minimum 6 caractères" required>
+    </div>
+    <div class="field">
+      <label>Confirmer</label>
+      <input type="password" name="mot_de_passe2" placeholder="Répétez" required>
+    </div>
+    <button type="submit" class="btn">Changer le mot de passe</button>
+  </form>
+  <div class="back"><a href="{% url 'login_enseignant' %}">← Retour</a></div>
+</div>
+</body>
+</html>

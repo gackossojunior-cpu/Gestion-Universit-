@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .receipt-container { max-width: 850px; margin: 0 auto; background: #fff; border: 1px solid #e2e8f0; padding: 32px; }
+    .receipt-header { border-bottom: 2px solid #0ea5e9; padding-bottom: 18px; margin-bottom: 24px; }
+    .receipt-title { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+    .receipt-subtitle { font-size: 0.9rem; color: #475569; margin-top: 6px; }
+    .receipt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 18px; }
+    .receipt-label { font-size: 0.82rem; color: #64748b; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .receipt-value { font-size: 1rem; color: #0f172a; font-weight: 600; }
+    .print-button { margin-bottom: 24px; }
+    @media print {
+        body { background: #fff !important; }
+        .print-only { display: none !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="receipt-container">
+    <div class="print-only flex justify-between items-center mb-4">
+        <button onclick="window.print()" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+            Imprimer le reçu
+        </button>
+        <a href="{% url 'transactions' %}" class="text-sm text-slate-600 hover:text-slate-900">Retour aux transactions</a>
+    </div>
+    <div class="receipt-header">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Université Catholique du Congo - Brazzaville</p>
+                <h1 class="receipt-title">Pièce de caisse</h1>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-slate-500">N°</p>
+                <p class="receipt-value">{{ receipt_number }}</p>
+            </div>
+        </div>
+        <p class="receipt-subtitle mt-3">Reçu de caisse pour une opération de trésorerie.</p>
+    </div>
+
+    <div class="receipt-row">
+        <div>
+            <p class="receipt-label">Type</p>
+            <p class="receipt-value">{{ receipt_type }}</p>
+        </div>
+        <div>
+            <p class="receipt-label">Date</p>
+            <p class="receipt-value">{{ transaction.created_at|date:"d/m/Y" }}</p>
+        </div>
+    </div>
+
+    <div class="receipt-row">
+        <div>
+            <p class="receipt-label">Montant</p>
+            <p class="receipt-value">{{ transaction.amount|floatformat:0 }} FCFA</p>
+        </div>
+        <div>
+            <p class="receipt-label">Montant en lettres</p>
+            <p class="receipt-value">{{ transaction.amount|floatformat:0 }} FCFA</p>
+        </div>
+    </div>
+
+    <div class="receipt-row">
+        <div>
+            <p class="receipt-label">Bénéficiaire / Déposant</p>
+            <p class="receipt-value">{{ transaction.text }}</p>
+        </div>
+        <div>
+            <p class="receipt-label">Référence</p>
+            <p class="receipt-value">{{ transaction.id }}</p>
+        </div>
+    </div>
+
+    <div class="receipt-row">
+        <div class="col-span-2">
+            <p class="receipt-label">Motif</p>
+            <p class="receipt-value">{{ transaction.text }}</p>
+        </div>
+    </div>
+
+    <div class="receipt-row mt-6">
+        <div>
+            <p class="receipt-label">Caissier</p>
+            <p class="receipt-value">UCCB - Finance</p>
+        </div>
+        <div>
+            <p class="receipt-label">Signature</p>
+            <div class="mt-4 h-12 border-b border-slate-300"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
