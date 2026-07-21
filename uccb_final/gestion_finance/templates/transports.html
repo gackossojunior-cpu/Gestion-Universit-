@@ -1,739 +1,483 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% load custom_filters %}
 
 {% block title %}Gestion des Transports{% endblock %}
+{% block page_title %}Transports{% endblock %}
 
 {% block extra_css %}
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+{% endblock %}
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-.tr-root {
-  font-family: 'Inter', sans-serif;
-  color: #0F172A;
-  padding: 2rem 1.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-/* ── Page header ─────────────────────────────────────────── */
-.page-header { margin-bottom: 2rem; }
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #0F172A;
-  letter-spacing: -.03em;
-  line-height: 1.1;
-}
-.page-sub {
-  font-size: 13px;
-  color: #94A3B8;
-  margin-top: 4px;
-  font-weight: 500;
-}
-
-/* ── KPI cards ───────────────────────────────────────────── */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 24px;
-}
-.kpi-card {
-  background: #fff;
-  border: 1px solid #E2E8F0;
-  border-radius: 16px;
-  padding: 20px 22px;
-  position: relative;
-  overflow: hidden;
-  transition: box-shadow .2s ease, transform .2s ease;
-}
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 14px; bottom: 14px;
-  width: 3px;
-  border-radius: 0 2px 2px 0;
-}
-.kpi-card:nth-child(1)::before { background: #6366F1; }
-.kpi-card:nth-child(2)::before { background: #10B981; }
-.kpi-card:nth-child(3)::before { background: #F59E0B; }
-.kpi-card:nth-child(4)::before { background: #F43F5E; }
-.kpi-card:hover { box-shadow: 0 8px 24px rgba(15,23,42,.08); transform: translateY(-2px); }
-
-.kpi-label {
-  font-size: 10px; font-weight: 700;
-  letter-spacing: .08em; text-transform: uppercase;
-  color: #94A3B8; margin-bottom: 8px;
-}
-.kpi-value {
-  font-size: 28px; font-weight: 800;
-  color: #0F172A; letter-spacing: -.5px; line-height: 1;
-}
-.kpi-desc { font-size: 11px; color: #CBD5E1; font-weight: 500; margin-top: 5px; }
-
-/* ── Content card ────────────────────────────────────────── */
-.content-card {
-  background: #fff;
-  border: 1px solid #E2E8F0;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-/* ── Tabs ────────────────────────────────────────────────── */
-.tabs-header {
-  display: flex; align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #F1F5F9;
-  gap: 8px;
-}
-.tab-list { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
-.tab-btn {
-  padding: 7px 16px; border: none; background: transparent;
-  color: #64748B; font-weight: 600; font-size: 13px; cursor: pointer;
-  border-radius: 8px; transition: all .18s ease;
-  font-family: 'Inter', sans-serif;
-}
-.tab-btn:hover { background: #F1F5F9; color: #0F172A; }
-.tab-btn.active { background: #6366F1; color: #fff; }
-
-.add-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 7px 14px;
-  border: 1px solid #E2E8F0; background: #fff;
-  color: #6366F1; font-weight: 700; font-size: 12px;
-  border-radius: 8px; cursor: pointer;
-  transition: all .18s ease; font-family: 'Inter', sans-serif;
-}
-.add-btn:hover { background: #EEF2FF; border-color: #C7D2FE; }
-
-/* ── Table ───────────────────────────────────────────────── */
-.tab-pane { display: none; }
-.tab-pane.active { display: block; animation: fadeIn .18s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-
-.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.data-table thead { background: #F8FAFC; }
-.data-table th {
-  padding: 10px 20px; text-align: left;
-  font-size: 10px; font-weight: 700; color: #94A3B8;
-  text-transform: uppercase; letter-spacing: .07em;
-  border-bottom: 1px solid #F1F5F9; white-space: nowrap;
-}
-.data-table td {
-  padding: 13px 20px;
-  border-bottom: 1px solid #F8FAFC;
-  color: #334155; vertical-align: middle;
-}
-.data-table tbody tr:last-child td { border-bottom: none; }
-.data-table tbody tr { transition: background .12s; }
-.data-table tbody tr:hover { background: #F8FAFC; }
-
-.cell-mono {
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-  font-size: 12px; font-weight: 600; color: #475569; letter-spacing: .02em;
-}
-.cell-name { font-weight: 600; color: #0F172A; }
-.cell-muted { color: #CBD5E1; font-size: 12px; font-weight: 500; }
-
-/* ── Status pills ────────────────────────────────────────── */
-.pill {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 10px; border-radius: 99px;
-  font-size: 11px; font-weight: 700; letter-spacing: .02em;
-}
-.pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
-.pill-green  { background: #F0FDF9; color: #059669; }
-.pill-green::before  { background: #10B981; }
-.pill-amber  { background: #FFFBEB; color: #D97706; }
-.pill-amber::before  { background: #F59E0B; }
-.pill-red    { background: #FFF1F2; color: #E11D48; }
-.pill-red::before    { background: #F43F5E; }
-.pill-blue   { background: #EEF2FF; color: #4F46E5; }
-.pill-blue::before   { background: #6366F1; }
-
-/* ── Time badge ──────────────────────────────────────────── */
-.time-badge {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 12px; font-weight: 600; color: #6366F1;
-  background: #EEF2FF; padding: 3px 8px; border-radius: 6px;
-}
-
-/* ── Action buttons ──────────────────────────────────────── */
-.action-row { display: flex; gap: 6px; align-items: center; }
-.btn-xs {
-  padding: 5px 11px; font-size: 11px; font-weight: 600;
-  border: 1px solid #E2E8F0; background: #fff; color: #475569;
-  border-radius: 6px; cursor: pointer; transition: all .15s;
-  font-family: 'Inter', sans-serif;
-}
-.btn-xs:hover { background: #F8FAFC; border-color: #CBD5E1; }
-.btn-xs.danger { color: #E11D48; border-color: #FECDD3; background: #FFF1F2; }
-.btn-xs.danger:hover { background: #FFE4E6; }
-
-/* ── Dépense type tags ───────────────────────────────────── */
-.dep-tag {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 8px; border-radius: 6px;
-  font-size: 11px; font-weight: 600;
-}
-.dep-tag.fuel     { background: #EFF6FF; color: #2563EB; }
-.dep-tag.repair   { background: #FFF7ED; color: #C2410C; }
-.dep-tag.maintain { background: #FFFBEB; color: #B45309; }
-
-.amount { font-weight: 800; color: #0F172A; font-variant-numeric: tabular-nums; font-size: 13px; }
-
-/* ── Empty state ─────────────────────────────────────────── */
-.empty-state { padding: 40px 20px; text-align: center; }
-.empty-icon {
-  width: 44px; height: 44px; background: #F1F5F9; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
-}
-.empty-text { font-size: 13px; color: #94A3B8; font-weight: 500; }
-
-/* ── Modal ───────────────────────────────────────────────── */
-.modal {
-  position: fixed; inset: 0; background: rgba(15,23,42,.45);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 100; padding: 1.5rem;
-  animation: fadeIn .18s ease;
-  backdrop-filter: blur(2px);
-}
-.modal.hidden { display: none; }
-
-.modal-box {
-  background: #fff; border-radius: 16px;
-  box-shadow: 0 32px 64px rgba(15,23,42,.18);
-  width: 100%; max-width: 440px; overflow: hidden;
-}
-.modal-head {
-  padding: 20px 24px; border-bottom: 1px solid #F1F5F9;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.modal-title { font-size: 15px; font-weight: 800; color: #0F172A; }
-.modal-x {
-  width: 28px; height: 28px; border: none; background: #F1F5F9;
-  border-radius: 6px; cursor: pointer; font-size: 14px; color: #64748B;
-  display: flex; align-items: center; justify-content: center; transition: all .15s;
-}
-.modal-x:hover { background: #E2E8F0; color: #0F172A; }
-.modal-body { padding: 20px 24px; }
-.modal-foot {
-  padding: 14px 24px; border-top: 1px solid #F1F5F9;
-  display: flex; gap: 8px; justify-content: flex-end; background: #F8FAFC;
-}
-
-/* ── Form ────────────────────────────────────────────────── */
-.form-group { margin-bottom: 14px; }
-.form-label {
-  display: block; font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .07em;
-  color: #64748B; margin-bottom: 6px;
-}
-.form-input, .form-select, .form-textarea {
-  width: 100%; padding: 9px 12px;
-  border: 1px solid #E2E8F0; border-radius: 8px;
-  font-size: 13px; font-family: 'Inter', sans-serif;
-  background: #F8FAFC; color: #0F172A; transition: all .15s;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-  outline: none; background: #fff; border-color: #6366F1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,.1);
-}
-.form-textarea { resize: vertical; min-height: 72px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-/* ── Buttons ─────────────────────────────────────────────── */
-.btn {
-  padding: 9px 18px; border: none; border-radius: 8px;
-  font-weight: 700; font-size: 13px; cursor: pointer;
-  font-family: 'Inter', sans-serif; transition: all .15s;
-}
-.btn-primary {
-  background: #6366F1; color: #fff;
-  box-shadow: 0 4px 12px rgba(99,102,241,.25);
-}
-.btn-primary:hover { background: #4F46E5; box-shadow: 0 6px 18px rgba(99,102,241,.35); }
-.btn-ghost { background: #F1F5F9; color: #475569; }
-.btn-ghost:hover { background: #E2E8F0; }
-
-.inline { display: inline; }
-
-@media (max-width: 1024px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 640px) {
-  .tr-root { padding: 1.2rem 1rem; }
-  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .tabs-header { flex-wrap: wrap; }
-  .data-table { display: block; overflow-x: auto; }
-  .form-row { grid-template-columns: 1fr; }
-}
-</style>
+{% block header_actions %}
+<button type="button" class="btn-add" onclick="getCurrentTabAction()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+    Ajouter
+</button>
 {% endblock %}
 
 {% block content %}
-<div class="tr-root">
+<div class="page-wrap">
 
-  <!-- Header -->
-  <div class="page-header">
-    <h1 class="page-title">Gestion des Transports</h1>
-    <p class="page-sub">Flotte · Trajets · Affectations · Dépenses</p>
-  </div>
-
-  <!-- KPIs -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Bus en flotte</div>
-      <div class="kpi-value">{{ total_buses|default:0 }}</div>
-      <div class="kpi-desc">Véhicules enregistrés</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">En service</div>
-      <div class="kpi-value">{{ buses_actifs|default:0 }}</div>
-      <div class="kpi-desc">Opérationnels</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Missions actives</div>
-      <div class="kpi-value">{{ active_affectations|default:0 }}</div>
-      <div class="kpi-desc">Affectations en cours</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Dépenses totales</div>
-      <div class="kpi-value">{{ total_depenses|floatformat:0|default:'0' }} <span style="font-size:14px;font-weight:500;color:#94A3B8;">FC</span></div>
-      <div class="kpi-desc">Charges transport</div>
-    </div>
-  </div>
-
-  <!-- Main card -->
-  <div class="content-card">
-    <div class="tabs-header">
-      <div class="tab-list">
-        <button type="button" class="tab-btn active" onclick="switchTab('buses', this)">Bus</button>
-        <button type="button" class="tab-btn" onclick="switchTab('trajets', this)">Trajets</button>
-        <button type="button" class="tab-btn" onclick="switchTab('affectations', this)">Affectations</button>
-        <button type="button" class="tab-btn" onclick="switchTab('depenses', this)">Dépenses</button>
-      </div>
-      <button type="button" class="add-btn" onclick="getCurrentTabAction()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Ajouter
-      </button>
-    </div>
-
-    <!-- BUS -->
-    <div id="pane-buses" class="tab-pane active">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Numéro</th><th>Plaque</th><th>Capacité</th>
-            <th>Statut</th><th>Chauffeur</th><th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for bus in buses %}
-          <tr>
-            <td class="cell-mono">{{ bus.numero }}</td>
-            <td class="cell-mono">{{ bus.plaque }}</td>
-            <td>{{ bus.capacite }} <span class="cell-muted">places</span></td>
-            <td>
-              {% if bus.statut == 'actif' %}<span class="pill pill-green">Actif</span>
-              {% elif bus.statut == 'maintenance' %}<span class="pill pill-amber">Maintenance</span>
-              {% else %}<span class="pill pill-red">Hors service</span>{% endif %}
-            </td>
-            <td>
-              {% if bus.chauffeur_actuel %}<span class="cell-name">{{ bus.chauffeur_actuel }}</span>
-              {% else %}<span class="cell-muted">Non assigné</span>{% endif %}
-            </td>
-            <td>
-              <div class="action-row">
-                <button type="button" class="btn-xs" onclick="openModal('editBusModal{{ bus.id }}')">Modifier</button>
-                <form method="post" action="{% url 'delete_bus' bus.id %}" class="inline" onsubmit="return confirm('Supprimer ce bus ?')">
-                  {% csrf_token %}<button type="submit" class="btn-xs danger">Supprimer</button>
-                </form>
-              </div>
-            </td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="6">
-            <div class="empty-state">
-              <div class="empty-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-              </div>
-              <div class="empty-text">Aucun bus enregistré</div>
+    <!-- KPI cards -->
+    <div class="stat-grid">
+        <div class="scard ink">
+            <div class="scard-icon">
+                <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
             </div>
-          </td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <!-- TRAJETS -->
-    <div id="pane-trajets" class="tab-pane">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Nom</th><th>Départ</th><th>Destination</th>
-            <th>Heure départ</th><th>Heure arrivée</th><th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for trajet in trajets %}
-          <tr>
-            <td class="cell-name">{{ trajet.nom }}</td>
-            <td>{{ trajet.depart }}</td>
-            <td>{{ trajet.destination }}</td>
-            <td><span class="time-badge">{{ trajet.heure_depart|time:"H:i" }}</span></td>
-            <td><span class="time-badge">{{ trajet.heure_arrivee|time:"H:i" }}</span></td>
-            <td>
-              <form method="post" action="{% url 'delete_trajet' trajet.id %}" class="inline" onsubmit="return confirm('Supprimer ce trajet ?')">
-                {% csrf_token %}<button type="submit" class="btn-xs danger">Supprimer</button>
-              </form>
-            </td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="6">
-            <div class="empty-state">
-              <div class="empty-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-              </div>
-              <div class="empty-text">Aucun trajet enregistré</div>
+            <div class="scard-val">{{ total_buses|default:0 }}</div>
+            <div class="scard-label">Bus en flotte</div>
+        </div>
+        <div class="scard green">
+            <div class="scard-icon">
+                <svg width="17" height="17" fill="none" stroke="#1E7A4C" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
-          </td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <!-- AFFECTATIONS -->
-    <div id="pane-affectations" class="tab-pane">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Bus</th><th>Chauffeur</th><th>Trajet</th>
-            <th>Date début</th><th>Statut</th><th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for aff in affectations %}
-          <tr>
-            <td class="cell-mono">{{ aff.bus.numero }}</td>
-            <td>
-              {% if aff.chauffeur %}<span class="cell-name">{{ aff.chauffeur.name }}</span>
-              {% else %}<span class="cell-muted">Non assigné</span>{% endif %}
-            </td>
-            <td>{{ aff.trajet.nom }}</td>
-            <td class="cell-muted">{{ aff.date_debut }}</td>
-            <td><span class="pill pill-blue">En cours</span></td>
-            <td>
-              <form method="post" action="{% url 'end_affectation' aff.id %}" class="inline" onsubmit="return confirm('Terminer cette affectation ?')">
-                {% csrf_token %}<button type="submit" class="btn-xs">Terminer</button>
-              </form>
-            </td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="6">
-            <div class="empty-state">
-              <div class="empty-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-              </div>
-              <div class="empty-text">Aucune affectation active</div>
+            <div class="scard-val">{{ buses_actifs|default:0 }}</div>
+            <div class="scard-label">En service</div>
+        </div>
+        <div class="scard amber">
+            <div class="scard-icon">
+                <svg width="17" height="17" fill="none" stroke="#A9803F" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"/></svg>
             </div>
-          </td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <!-- DÉPENSES -->
-    <div id="pane-depenses" class="tab-pane">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Bus</th><th>Type</th><th>Montant</th>
-            <th>Description</th><th>Date</th><th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for dep in depenses %}
-          <tr>
-            <td class="cell-mono">{{ dep.bus.numero }}</td>
-            <td>
-              {% if dep.type_depense == 'carburant' %}<span class="dep-tag fuel">🛢 Carburant</span>
-              {% elif dep.type_depense == 'entretien' %}<span class="dep-tag maintain">🔧 Entretien</span>
-              {% else %}<span class="dep-tag repair">🔨 Réparation</span>{% endif %}
-            </td>
-            <td><span class="amount">{{ dep.montant|floatformat:0 }}</span> <span class="cell-muted">FC</span></td>
-            <td class="cell-muted">{{ dep.description }}</td>
-            <td class="cell-muted">{{ dep.date }}</td>
-            <td>
-              <form method="post" action="{% url 'delete_depense_transport' dep.id %}" class="inline" onsubmit="return confirm('Supprimer cette dépense ?')">
-                {% csrf_token %}<button type="submit" class="btn-xs danger">Supprimer</button>
-              </form>
-            </td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="6">
-            <div class="empty-state">
-              <div class="empty-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-              </div>
-              <div class="empty-text">Aucune dépense enregistrée</div>
+            <div class="scard-val">{{ active_affectations|default:0 }}</div>
+            <div class="scard-label">Missions actives</div>
+        </div>
+        <div class="scard rose">
+            <div class="scard-icon">
+                <svg width="17" height="17" fill="none" stroke="#A93A26" viewBox="0 0 24 24" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
             </div>
-          </td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+            <div class="scard-val">{{ total_depenses|floatformat:0|default:'0' }}</div>
+            <div class="scard-label">Dépenses totales</div>
+            <div class="scard-currency">FCFA</div>
+        </div>
     </div>
 
-  </div>
+    <!-- Tabbed card -->
+    <div class="content-card">
+        <div class="tabs-header">
+            <div class="tab-list">
+                <button type="button" class="tab-btn active" onclick="switchTab('buses', this)">Bus</button>
+                <button type="button" class="tab-btn" onclick="switchTab('trajets', this)">Trajets</button>
+                <button type="button" class="tab-btn" onclick="switchTab('affectations', this)">Affectations</button>
+                <button type="button" class="tab-btn" onclick="switchTab('depenses', this)">Dépenses</button>
+            </div>
+        </div>
+
+        <!-- BUS -->
+        <div id="pane-buses" class="tab-pane active">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Numéro</th><th>Plaque</th><th>Capacité</th>
+                        <th>Statut</th><th>Chauffeur</th><th class="center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bus in buses %}
+                    <tr>
+                        <td class="cell-mono">{{ bus.numero }}</td>
+                        <td class="cell-mono">{{ bus.plaque }}</td>
+                        <td>{{ bus.capacite }} <span class="cell-muted">places</span></td>
+                        <td>
+                            {% if bus.statut == 'actif' %}<span class="badge-status badge-paye"><span class="dot"></span>Actif</span>
+                            {% elif bus.statut == 'maintenance' %}<span class="badge-status badge-partiel"><span class="dot"></span>Maintenance</span>
+                            {% else %}<span class="badge-status badge-attente"><span class="dot"></span>Hors service</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if bus.chauffeur_actuel %}<span class="cell-name">{{ bus.chauffeur_actuel }}</span>
+                            {% else %}<span class="cell-muted">Non assigné</span>{% endif %}
+                        </td>
+                        <td>
+                            <div class="action-row">
+                                <button type="button" class="btn-xs" onclick="openModal('editBusModal{{ bus.id }}')">Modifier</button>
+                                <form method="post" action="{% url 'delete_bus' bus.id %}" class="inline" onsubmit="return confirm('Supprimer ce bus ?')">
+                                    {% csrf_token %}<button type="submit" class="btn-xs danger">Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                            </div>
+                            <div class="empty-text">Aucun bus enregistré</div>
+                        </div>
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TRAJETS -->
+        <div id="pane-trajets" class="tab-pane">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th><th>Départ</th><th>Destination</th>
+                        <th>Heure départ</th><th>Heure arrivée</th><th class="center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trajet in trajets %}
+                    <tr>
+                        <td class="cell-name">{{ trajet.nom }}</td>
+                        <td>{{ trajet.depart }}</td>
+                        <td>{{ trajet.destination }}</td>
+                        <td><span class="time-badge">{{ trajet.heure_depart|time:"H:i" }}</span></td>
+                        <td><span class="time-badge">{{ trajet.heure_arrivee|time:"H:i" }}</span></td>
+                        <td>
+                            <div class="action-row">
+                                <form method="post" action="{% url 'delete_trajet' trajet.id %}" class="inline" onsubmit="return confirm('Supprimer ce trajet ?')">
+                                    {% csrf_token %}<button type="submit" class="btn-xs danger">Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                            </div>
+                            <div class="empty-text">Aucun trajet enregistré</div>
+                        </div>
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- AFFECTATIONS -->
+        <div id="pane-affectations" class="tab-pane">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Bus</th><th>Chauffeur</th><th>Trajet</th>
+                        <th>Date début</th><th class="center">Statut</th><th class="center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aff in affectations %}
+                    <tr>
+                        <td class="cell-mono">{{ aff.bus.numero }}</td>
+                        <td>
+                            {% if aff.chauffeur %}<span class="cell-name">{{ aff.chauffeur.name }}</span>
+                            {% else %}<span class="cell-muted">Non assigné</span>{% endif %}
+                        </td>
+                        <td>{{ aff.trajet.nom }}</td>
+                        <td class="cell-muted">{{ aff.date_debut }}</td>
+                        <td class="center"><span class="badge-level">En cours</span></td>
+                        <td>
+                            <div class="action-row">
+                                <form method="post" action="{% url 'end_affectation' aff.id %}" class="inline" onsubmit="return confirm('Terminer cette affectation ?')">
+                                    {% csrf_token %}<button type="submit" class="btn-xs">Terminer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                            </div>
+                            <div class="empty-text">Aucune affectation active</div>
+                        </div>
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- DÉPENSES -->
+        <div id="pane-depenses" class="tab-pane">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Bus</th><th>Type</th><th>Montant</th>
+                        <th>Description</th><th>Date</th><th class="center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dep in depenses %}
+                    <tr>
+                        <td class="cell-mono">{{ dep.bus.numero }}</td>
+                        <td>
+                            {% if dep.type_depense == 'carburant' %}<span class="dep-tag fuel">🛢 Carburant</span>
+                            {% elif dep.type_depense == 'entretien' %}<span class="dep-tag maintain">🔧 Entretien</span>
+                            {% else %}<span class="dep-tag repair">🔨 Réparation</span>{% endif %}
+                        </td>
+                        <td><span class="amount-main">{{ dep.montant|floatformat:0 }} FCFA</span></td>
+                        <td class="cell-muted">{{ dep.description }}</td>
+                        <td class="cell-muted">{{ dep.date }}</td>
+                        <td>
+                            <div class="action-row">
+                                <form method="post" action="{% url 'delete_depense_transport' dep.id %}" class="inline" onsubmit="return confirm('Supprimer cette dépense ?')">
+                                    {% csrf_token %}<button type="submit" class="btn-xs danger">Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                            </div>
+                            <div class="empty-text">Aucune dépense enregistrée</div>
+                        </div>
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 </div>
 
 <!-- MODALS -->
 
 <!-- Add Bus -->
 <div class="modal hidden" id="addBusModal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <span class="modal-title">Nouveau bus</span>
-      <button type="button" class="modal-x" onclick="closeModal('addBusModal')">✕</button>
+    <div class="modal-box">
+        <div class="modal-head">
+            <span class="modal-title">Nouveau bus</span>
+            <button type="button" class="modal-x" onclick="closeModal('addBusModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form method="post" action="{% url 'add_bus' %}">{% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Numéro du bus</label>
+                    <input name="numero" class="form-input" placeholder="BUS-001" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Plaque d'immatriculation</label>
+                    <input name="plaque" class="form-input" placeholder="ABC-123-CG" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Capacité (places)</label>
+                    <input type="number" name="capacite" class="form-input" placeholder="50" required>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('addBusModal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="modal-body">
-      <form method="post" action="{% url 'add_bus' %}">{% csrf_token %}
-        <div class="form-group">
-          <label class="form-label">Numéro du bus</label>
-          <input name="numero" class="form-input" placeholder="BUS-001" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Plaque d'immatriculation</label>
-          <input name="plaque" class="form-input" placeholder="ABC-123-CG" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Capacité (places)</label>
-          <input type="number" name="capacite" class="form-input" placeholder="50" required />
-        </div>
-        <div class="modal-foot">
-          <button type="button" class="btn btn-ghost" onclick="closeModal('addBusModal')">Annuler</button>
-          <button type="submit" class="btn btn-primary">Créer</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
 
 <!-- Add Trajet -->
 <div class="modal hidden" id="addTrajetModal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <span class="modal-title">Nouveau trajet</span>
-      <button type="button" class="modal-x" onclick="closeModal('addTrajetModal')">✕</button>
+    <div class="modal-box">
+        <div class="modal-head">
+            <span class="modal-title">Nouveau trajet</span>
+            <button type="button" class="modal-x" onclick="closeModal('addTrajetModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form method="post" action="{% url 'add_trajet' %}">{% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Nom du trajet</label>
+                    <input name="nom" class="form-input" placeholder="Campus → Centre-ville" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Point de départ</label>
+                        <input name="depart" class="form-input" placeholder="UCCB" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Destination</label>
+                        <input name="destination" class="form-input" placeholder="Centre-ville" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Heure départ</label>
+                        <input type="time" name="heure_depart" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Heure arrivée</label>
+                        <input type="time" name="heure_arrivee" class="form-input" required>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('addTrajetModal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="modal-body">
-      <form method="post" action="{% url 'add_trajet' %}">{% csrf_token %}
-        <div class="form-group">
-          <label class="form-label">Nom du trajet</label>
-          <input name="nom" class="form-input" placeholder="Campus → Centre-ville" required />
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Point de départ</label>
-            <input name="depart" class="form-input" placeholder="UCCB" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Destination</label>
-            <input name="destination" class="form-input" placeholder="Centre-ville" required />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Heure départ</label>
-            <input type="time" name="heure_depart" class="form-input" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Heure arrivée</label>
-            <input type="time" name="heure_arrivee" class="form-input" required />
-          </div>
-        </div>
-        <div class="modal-foot">
-          <button type="button" class="btn btn-ghost" onclick="closeModal('addTrajetModal')">Annuler</button>
-          <button type="submit" class="btn btn-primary">Créer</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
 
 <!-- Add Affectation -->
 <div class="modal hidden" id="addAffectModal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <span class="modal-title">Nouvelle affectation</span>
-      <button type="button" class="modal-x" onclick="closeModal('addAffectModal')">✕</button>
+    <div class="modal-box">
+        <div class="modal-head">
+            <span class="modal-title">Nouvelle affectation</span>
+            <button type="button" class="modal-x" onclick="closeModal('addAffectModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form method="post" action="{% url 'add_affectation' %}">{% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Bus</label>
+                    <select name="bus_id" class="form-select" required>
+                        <option value="">Sélectionner un bus</option>
+                        {% for bus in buses %}<option value="{{ bus.id }}">{{ bus.numero }} — {{ bus.plaque }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Chauffeur</label>
+                    <select name="chauffeur_id" class="form-select">
+                        <option value="">Non assigné</option>
+                        {% for chauffeur in personnels %}<option value="{{ chauffeur.id }}">{{ chauffeur.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Trajet</label>
+                    <select name="trajet_id" class="form-select" required>
+                        <option value="">Sélectionner un trajet</option>
+                        {% for trajet in trajets %}<option value="{{ trajet.id }}">{{ trajet.nom }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date début</label>
+                    <input type="date" name="date_debut" class="form-input" required>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('addAffectModal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="modal-body">
-      <form method="post" action="{% url 'add_affectation' %}">{% csrf_token %}
-        <div class="form-group">
-          <label class="form-label">Bus</label>
-          <select name="bus_id" class="form-select" required>
-            <option value="">Sélectionner un bus</option>
-            {% for bus in buses %}<option value="{{ bus.id }}">{{ bus.numero }} — {{ bus.plaque }}</option>{% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Chauffeur</label>
-          <select name="chauffeur_id" class="form-select">
-            <option value="">Non assigné</option>
-            {% for chauffeur in personnels %}<option value="{{ chauffeur.id }}">{{ chauffeur.name }}</option>{% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Trajet</label>
-          <select name="trajet_id" class="form-select" required>
-            <option value="">Sélectionner un trajet</option>
-            {% for trajet in trajets %}<option value="{{ trajet.id }}">{{ trajet.nom }}</option>{% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date début</label>
-          <input type="date" name="date_debut" class="form-input" required />
-        </div>
-        <div class="modal-foot">
-          <button type="button" class="btn btn-ghost" onclick="closeModal('addAffectModal')">Annuler</button>
-          <button type="submit" class="btn btn-primary">Créer</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
 
 <!-- Add Dépense -->
 <div class="modal hidden" id="addDepenseModal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <span class="modal-title">Nouvelle dépense</span>
-      <button type="button" class="modal-x" onclick="closeModal('addDepenseModal')">✕</button>
+    <div class="modal-box">
+        <div class="modal-head">
+            <span class="modal-title">Nouvelle dépense</span>
+            <button type="button" class="modal-x" onclick="closeModal('addDepenseModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form method="post" action="{% url 'add_depense_transport' %}">{% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Bus</label>
+                        <select name="bus_id" class="form-select" required>
+                            <option value="">Choisir</option>
+                            {% for bus in buses %}<option value="{{ bus.id }}">{{ bus.numero }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select name="type_depense" class="form-select" required>
+                            <option value="carburant">🛢 Carburant</option>
+                            <option value="entretien">🔧 Entretien</option>
+                            <option value="reparation">🔨 Réparation</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Montant (FCFA)</label>
+                    <input type="number" name="montant" class="form-input" step="0.01" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-textarea" placeholder="Notes optionnelles…"></textarea>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('addDepenseModal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="modal-body">
-      <form method="post" action="{% url 'add_depense_transport' %}">{% csrf_token %}
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Bus</label>
-            <select name="bus_id" class="form-select" required>
-              <option value="">Choisir</option>
-              {% for bus in buses %}<option value="{{ bus.id }}">{{ bus.numero }}</option>{% endfor %}
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Type</label>
-            <select name="type_depense" class="form-select" required>
-              <option value="carburant">🛢 Carburant</option>
-              <option value="entretien">🔧 Entretien</option>
-              <option value="reparation">🔨 Réparation</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Montant (FC)</label>
-          <input type="number" name="montant" class="form-input" step="0.01" placeholder="0" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea name="description" class="form-textarea" placeholder="Notes optionnelles…"></textarea>
-        </div>
-        <div class="modal-foot">
-          <button type="button" class="btn btn-ghost" onclick="closeModal('addDepenseModal')">Annuler</button>
-          <button type="submit" class="btn btn-primary">Enregistrer</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
 
 <!-- Edit Bus modals -->
 {% for bus in buses %}
 <div class="modal hidden" id="editBusModal{{ bus.id }}">
-  <div class="modal-box">
-    <div class="modal-head">
-      <span class="modal-title">Modifier · <span class="cell-mono" style="font-size:13px;">{{ bus.numero }}</span></span>
-      <button type="button" class="modal-x" onclick="closeModal('editBusModal{{ bus.id }}')">✕</button>
+    <div class="modal-box">
+        <div class="modal-head">
+            <span class="modal-title">Modifier · <span class="cell-mono" style="font-size:13px;">{{ bus.numero }}</span></span>
+            <button type="button" class="modal-x" onclick="closeModal('editBusModal{{ bus.id }}')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form method="post" action="{% url 'edit_bus' bus.id %}">{% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Numéro</label>
+                        <input type="text" name="numero" value="{{ bus.numero }}" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Plaque</label>
+                        <input type="text" name="plaque" value="{{ bus.plaque }}" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Capacité</label>
+                        <input type="number" name="capacite" value="{{ bus.capacite }}" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Statut</label>
+                        <select name="statut" class="form-select" required>
+                            <option value="actif"        {% if bus.statut == 'actif'        %}selected{% endif %}>Actif</option>
+                            <option value="maintenance"  {% if bus.statut == 'maintenance'  %}selected{% endif %}>Maintenance</option>
+                            <option value="hors_service" {% if bus.statut == 'hors_service' %}selected{% endif %}>Hors service</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-foot">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal('editBusModal{{ bus.id }}')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="modal-body">
-      <form method="post" action="{% url 'edit_bus' bus.id %}">{% csrf_token %}
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Numéro</label>
-            <input type="text" name="numero" value="{{ bus.numero }}" class="form-input" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Plaque</label>
-            <input type="text" name="plaque" value="{{ bus.plaque }}" class="form-input" required />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Capacité</label>
-            <input type="number" name="capacite" value="{{ bus.capacite }}" class="form-input" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Statut</label>
-            <select name="statut" class="form-select" required>
-              <option value="actif" {% if bus.statut == 'actif' %}selected{% endif %}>Actif</option>
-              <option value="maintenance" {% if bus.statut == 'maintenance' %}selected{% endif %}>Maintenance</option>
-              <option value="hors_service" {% if bus.statut == 'hors_service' %}selected{% endif %}>Hors service</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-foot">
-          <button type="button" class="btn btn-ghost" onclick="closeModal('editBusModal{{ bus.id }}')">Annuler</button>
-          <button type="submit" class="btn btn-primary">Enregistrer</button>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
 {% endfor %}
 
-{% endblock %}
-
-{% block extra_js %}
 <script>
-let currentTab = 'buses';
+var currentTab = 'buses';
+var tabModals = { buses: 'addBusModal', trajets: 'addTrajetModal', affectations: 'addAffectModal', depenses: 'addDepenseModal' };
 
-function switchTab(tab, button) {
-  currentTab = tab;
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  const pane = document.getElementById('pane-' + tab);
-  if (pane) pane.classList.add('active');
-  if (button) button.classList.add('active');
+function switchTab(name, btn) {
+    document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('pane-' + name).classList.add('active');
+    btn.classList.add('active');
+    currentTab = name;
 }
 
 function getCurrentTabAction() {
-  const actions = {
-    buses: 'addBusModal', trajets: 'addTrajetModal',
-    affectations: 'addAffectModal', depenses: 'addDepenseModal'
-  };
-  openModal(actions[currentTab] || 'addBusModal');
+    openModal(tabModals[currentTab] || 'addBusModal');
 }
 
 function openModal(id) {
-  const m = document.getElementById(id);
-  if (m) m.classList.remove('hidden');
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('hidden');
 }
 
 function closeModal(id) {
-  const m = document.getElementById(id);
-  if (m) m.classList.add('hidden');
+    var el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('click', e => { if (e.target === modal) closeModal(modal.id); });
-  });
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal:not(.hidden)').forEach(function(m) { m.classList.add('hidden'); });
+    }
 });
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape')
-    document.querySelectorAll('.modal:not(.hidden)').forEach(m => m.classList.add('hidden'));
+document.querySelectorAll('.modal').forEach(function(modal) {
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) modal.classList.add('hidden');
+    });
 });
 </script>
+
 {% endblock %}

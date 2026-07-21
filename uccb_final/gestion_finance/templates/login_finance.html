@@ -7,37 +7,27 @@
     <title>UCCB — Espace Finance</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         :root {
-            --bg: #ffffff;
-            --navy: #1e2d40;
-            --text: #1e2d40;
-            --muted: #6b7280;
-            --border: rgba(30, 45, 64, .1);
-            --accent: #3b9edb;
+            --ink:   #1B2A4A;
+            --gold:  #A9803F;
+            --slate: #565F6E;
+            --line:  #E8E8E8;
+            --paper: #F7F8FA;
         }
 
-        html, body {
-            height: 100%;
-            font-family: 'Inter', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            -webkit-font-smoothing: antialiased;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
 
+        /* Navbar */
         .navbar {
             display: flex;
             align-items: center;
-            padding: 0 56px;
-            height: 64px;
-            border-bottom: 1px solid var(--border);
+            padding: 0 48px;
+            height: 60px;
+            background: #fff;
+            border-bottom: 1px solid var(--line);
         }
 
         .nav-brand {
@@ -47,151 +37,180 @@
             text-decoration: none;
         }
 
-        .nav-logo img {
-            height: 38px;
-            width: auto;
-            display: block;
-            object-fit: contain;
+        .nav-logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--ink);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Source Serif 4', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
         }
 
         .nav-brand-text {
-            font-size: 15px;
+            font-family: 'Source Serif 4', serif;
+            font-size: 18px;
             font-weight: 700;
-            color: var(--navy);
+            color: var(--ink);
         }
 
+        .nav-brand-sub {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--gold);
+            display: block;
+            margin-top: 1px;
+        }
+
+        /* Login */
         .login-wrap {
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: calc(100vh - 64px - 50px);
-            padding: 40px 24px;
+            min-height: calc(100vh - 60px - 48px);
+            padding: 40px 20px;
         }
 
         .login-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 36px 36px 32px;
             width: 100%;
             max-width: 380px;
-            animation: fadeUp .4s ease both;
+            box-shadow: 0 4px 24px rgba(0,0,0,.06);
+            animation: fadeUp .35s ease both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--ink);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            font-family: 'Source Serif 4', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
         }
 
         .login-title {
-            font-size: 24px;
+            font-family: 'Inter', sans-serif;
+            font-size: 20px;
             font-weight: 700;
-            color: var(--navy);
-            margin-bottom: 6px;
+            color: var(--ink);
             text-align: center;
+            margin-bottom: 5px;
         }
 
         .login-sub {
-            font-size: 14px;
-            color: var(--muted);
+            font-size: 13.5px;
+            color: var(--slate);
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
 
-        .field {
-            margin-bottom: 18px;
-        }
+        .field { margin-bottom: 16px; }
 
         .field label {
             display: block;
-            font-size: 12.5px;
-            font-weight: 600;
-            color: var(--navy);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--slate);
             margin-bottom: 6px;
         }
 
         .field input {
             width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid var(--border);
+            padding: 10px 13px;
+            border: 1px solid var(--line);
             border-radius: 8px;
-            font-size: 14.5px;
-            font-family: inherit;
-            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: var(--ink);
             outline: none;
+            background: var(--paper);
             transition: border-color .15s;
         }
 
-        .field input:focus {
-            border-color: var(--accent);
-        }
+        .field input:focus { border-color: var(--gold); background: #fff; }
 
         .btn-login {
             width: 100%;
-            background: var(--navy);
+            padding: 11px;
+            background: var(--ink);
             color: #fff;
-            font-size: 15px;
-            font-weight: 600;
-            padding: 13px;
             border: none;
-            border-radius: 7px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14.5px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 8px;
-            transition: background .18s, transform .15s;
+            margin-top: 6px;
+            transition: background .15s;
         }
 
-        .btn-login:hover {
-            background: #162032;
-            transform: translateY(-1px);
-        }
+        .btn-login:hover { background: #33456B; }
 
         .back-link {
             display: block;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 18px;
             font-size: 13px;
-            color: var(--muted);
+            color: var(--slate);
             text-decoration: none;
+            transition: color .15s;
         }
 
-        .back-link:hover {
-            color: var(--navy);
-        }
+        .back-link:hover { color: var(--ink); }
 
         .msg-error {
-            background: #FEE2E2;
-            color: #B91C1C;
-            border: 1px solid #FCA5A5;
-            padding: 10px 14px;
-            border-radius: 8px;
+            background: #FBEBE7;
+            color: #A93A26;
+            border: 1px solid rgba(169,58,38,.2);
+            border-left: 3px solid #A93A26;
+            padding: 9px 13px;
+            border-radius: 7px;
             font-size: 13px;
+            font-weight: 500;
             margin-bottom: 18px;
         }
 
+        /* Footer */
         footer {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg);
-            border-top: 1px solid var(--border);
-            padding: 14px 56px;
+            bottom: 0; left: 0; right: 0;
+            background: #fff;
+            border-top: 1px solid var(--line);
+            padding: 12px 48px;
             text-align: center;
             font-size: 11.5px;
-            color: var(--muted);
+            color: var(--slate);
         }
 
-        footer strong {
-            color: var(--navy);
-            font-weight: 600;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        footer strong { color: var(--ink); font-weight: 600; }
 
         @media (max-width: 600px) {
-            .navbar {
-                padding: 0 20px;
-            }
+            .navbar { padding: 0 20px; }
+            footer  { padding: 12px 20px; }
+            .login-card { padding: 28px 22px; }
         }
     </style>
 </head>
@@ -199,33 +218,36 @@
 
 <nav class="navbar">
     <a href="{% url 'portail_accueil' %}" class="nav-brand">
-        <div class="nav-logo">
-            <img src="{% static 'gestion_eleves/img/logo_uccb.jpg' %}" alt="UCCB">
+        <div class="nav-logo-icon">U</div>
+        <div>
+            <span class="nav-brand-text">UCCB</span>
+            <span class="nav-brand-sub">Gestion Finance</span>
         </div>
-        <span class="nav-brand-text">UCCB</span>
     </a>
 </nav>
 
 <div class="login-wrap">
     <div class="login-card">
+
+        <div class="login-icon">U</div>
         <h1 class="login-title">Espace Finance</h1>
         <p class="login-sub">Connectez-vous pour accéder au tableau de bord</p>
 
         {% if messages %}
-        {% for message in messages %}
-        <div class="msg-error">{{ message }}</div>
-        {% endfor %}
+            {% for message in messages %}
+            <div class="msg-error">{{ message }}</div>
+            {% endfor %}
         {% endif %}
 
         <form method="post">
             {% csrf_token %}
             <div class="field">
                 <label>Nom d'utilisateur</label>
-                <input type="text" name="username" required autofocus>
+                <input type="text" name="username" required autofocus autocomplete="username">
             </div>
             <div class="field">
                 <label>Mot de passe</label>
-                <input type="password" name="password" required>
+                <input type="password" name="password" required autocomplete="current-password">
             </div>
             <button type="submit" class="btn-login">Se connecter</button>
         </form>

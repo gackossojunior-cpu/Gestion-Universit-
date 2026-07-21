@@ -1,253 +1,325 @@
 {% extends "base.html" %}
-  {% load static %}
+{% load static %}
 
-  {% block content %}
+{% block title %}Tableau de bord — Gestion Finance UCCB{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
 
-  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
 
-  <div class="db-wrap">
+{% block header_actions %}
+<div class="btn-icon">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Jan 2025 – Juin 2025
+</div>
+<a href="{% url 'transactions' %}" class="btn btn-primary">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Exporter
+</a>
+{% endblock %}
 
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card blue">
-        <div class="stat-icon" style="background:#EEF2FF;">💰</div>
-        <div class="stat-label">Solde</div>
-        <div class="stat-value">{{ solde|default:"0"|floatformat:0 }}<span>FCFA</span></div>
-      </div>
-      <div class="stat-card green">
-        <div class="stat-icon" style="background:#ECFDF5;">📈</div>
-        <div class="stat-label">Revenus</div>
-        <div class="stat-value">{{ income|default:"0"|floatformat:0 }}<span>FCFA</span></div>
-      </div>
-      <div class="stat-card rose">
-        <div class="stat-icon" style="background:#FFF1F2;">📉</div>
-        <div class="stat-label">Dépenses</div>
-        <div class="stat-value">{{ expense|default:"0"|floatformat:0 }}<span>FCFA</span></div>
-      </div>
+{% block content %}
+<div class="db-wrap">
+
+    <!-- ── Row 1 : KPI Cards ── -->
+    <div class="kpi-row">
+
+        <div class="kpi-card">
+            <div class="kpi-label">Solde Global</div>
+            <div class="kpi-value">{{ solde|default:"0"|floatformat:0 }} <span class="kpi-currency">FCFA</span></div>
+            <div class="kpi-badge badge-green">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                +12.4%
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Revenus</div>
+            <div class="kpi-value">{{ income|default:"0"|floatformat:0 }} <span class="kpi-currency">FCFA</span></div>
+            <div class="kpi-trend trend-up">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                En hausse
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Dépenses</div>
+            <div class="kpi-value">{{ expense|default:"0"|floatformat:0 }} <span class="kpi-currency">FCFA</span></div>
+            <div class="kpi-trend trend-down">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                En baisse
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-label">Étudiants</div>
+            <div class="kpi-value kpi-value--large">{{ etu.total|default:0 }} <span class="kpi-unit">inscrits</span></div>
+            <div class="kpi-progress-wrap">
+                <div class="kpi-progress-track">
+                    <div class="kpi-progress-fill" style="width: {{ pct_recouvrement|floatformat:0 }}%"></div>
+                </div>
+                <span class="kpi-progress-label">{{ pct_recouvrement|floatformat:1 }}% recouv.</span>
+            </div>
+        </div>
+
     </div>
+    <!-- /kpi-row -->
 
-    <!-- Main grid -->
+
+    <!-- ── Row 2 : Main grid ── -->
     <div class="main-grid">
 
-      <div class="col-left">
+        <!-- LEFT COLUMN -->
+        <div class="col-left">
 
-        <!-- Étudiants -->
-        <div class="section-card">
-          <div class="section-head">
-            <div class="section-head-left">
-              <div class="head-icon" style="background:#EEF2FF;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                  <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                </svg>
-              </div>
-              <div>
-                <div class="head-title">Étudiants</div>
-                <div class="head-sub">Recouvrement {{ pct_recouvrement|floatformat:1 }}%</div>
-              </div>
+            <!-- Revenus vs Dépenses chart -->
+            <div class="card db-card">
+                <div class="db-card-header">
+                    <span class="db-card-title">Revenus vs Dépenses</span>
+                </div>
+                <div class="db-card-body">
+                    <canvas id="financeChart" height="130"></canvas>
+                </div>
             </div>
-            <a href="{% url 'etudiants' %}" class="link-small">Voir tout →</a>
-          </div>
-          <div class="mini-grid">
-            <div class="mini-stat total">
-              <div class="mini-val">{{ etu.total|default:0 }}</div>
-              <div class="mini-lbl">Total</div>
+
+            <!-- État des paiements étudiants -->
+            <div class="card db-card">
+                <div class="db-card-header">
+                    <span class="db-card-title">État des paiements étudiants</span>
+                    <a href="{% url 'etudiants' %}" class="db-card-link">Voir tout →</a>
+                </div>
+                <div class="db-card-body">
+                    <div class="stu-grid">
+                        <div class="stu-stat stu-total">
+                            <div class="stu-label">Total</div>
+                            <div class="stu-val">{{ etu.total|default:0 }}</div>
+                        </div>
+                        <div class="stu-stat stu-payes">
+                            <div class="stu-label">Payés</div>
+                            <div class="stu-val">{{ etu.payes|default:0 }}</div>
+                        </div>
+                        <div class="stu-stat stu-partiels">
+                            <div class="stu-label">Partiels</div>
+                            <div class="stu-val">{{ etu.partiels|default:0 }}</div>
+                        </div>
+                        <div class="stu-stat stu-nonpayes">
+                            <div class="stu-label">Non payés</div>
+                            <div class="stu-val">{{ etu.non_payes|default:0 }}</div>
+                        </div>
+                    </div>
+
+                    <div class="recouv-wrap">
+                        <div class="recouv-top">
+                            <span class="recouv-label">Objectif de recouvrement</span>
+                            <span class="recouv-amounts">
+                                <strong>{{ total_paye|default:"0" }}</strong> / {{ total_attendu|default:"0" }} FCFA
+                            </span>
+                        </div>
+                        <div class="recouv-track">
+                            <div class="recouv-fill" style="width: {{ pct_recouvrement|floatformat:0 }}%"></div>
+                        </div>
+                        <div class="recouv-pct">{{ pct_recouvrement|floatformat:1 }}% recouvré</div>
+                    </div>
+                </div>
             </div>
-            <div class="mini-stat payes">
-              <div class="mini-val">{{ etu.payes|default:0 }}</div>
-              <div class="mini-lbl">Payés</div>
-            </div>
-            <div class="mini-stat partiels">
-              <div class="mini-val">{{ etu.partiels|default:0 }}</div>
-              <div class="mini-lbl">Partiels</div>
-            </div>
-            <div class="mini-stat nonpayes">
-              <div class="mini-val">{{ etu.non_payes|default:0 }}</div>
-              <div class="mini-lbl">Non payés</div>
-            </div>
-          </div>
-          <div class="progress-wrap">
-            <div class="progress-track">
-              <div class="progress-fill" style="width:{{ pct_recouvrement|floatformat:0 }}%"></div>
-            </div>
-            <div class="progress-meta">{{ total_paye|default:"0" }} / {{ total_attendu|default:"0" }} FCFA collectés</div>
-          </div>
+
         </div>
+        <!-- /col-left -->
 
-        <!-- Salaires -->
-        <div class="section-card">
-          <div class="section-head">
-            <div class="section-head-left">
-              <div class="head-icon" style="background:#F5F3FF;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="7" width="20" height="14" rx="2"/>
-                  <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
-                  <line x1="12" y1="12" x2="12" y2="16"/>
-                  <line x1="10" y1="14" x2="14" y2="14"/>
-                </svg>
-              </div>
-              <div>
-                <div class="head-title">Salaires</div>
-                <div class="head-sub">Enseignants &amp; Personnel</div>
-              </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-right">
+
+            <!-- Masse salariale -->
+            <div class="card db-card">
+                <div class="db-card-header">
+                    <span class="db-card-title">Masse Salariale</span>
+                </div>
+                <div class="db-card-body">
+                    <div class="sal-grid">
+                        <div class="sal-item">
+                            <div class="sal-label">Total Salaires</div>
+                            <div class="sal-val">{{ total_salaires|default:"0" }} <span class="sal-currency">FCFA</span></div>
+                        </div>
+                        <div class="sal-item sal-item--green">
+                            <div class="sal-label">Déjà payé</div>
+                            <div class="sal-val">{{ total_paye_salaires|default:"0" }} <span class="sal-currency">FCFA</span></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="sal-grid">
-            <div class="sal-item neutral">
-              <div class="sal-label">Total salaires</div>
-              <div class="sal-value">{{ total_salaires|default:"0" }}<span class="sal-currency">FCFA</span></div>
+
+            <!-- Retards de paiement -->
+            <div class="card db-card">
+                <div class="db-card-header">
+                    <span class="db-card-title">Retards de paiement</span>
+                    {% if retard %}
+                        <span class="badge badge-red">{{ retard|length }}</span>
+                    {% endif %}
+                </div>
+                <div class="db-card-body db-card-body--no-pad">
+                    {% if retard %}
+                    <table class="db-table">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Matricule</th>
+                                <th style="text-align:right">Reste à payer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in retard %}
+                            <tr>
+                                <td class="db-table-name">{{ s.name }}</td>
+                                <td class="db-table-mono">{{ s.matricule }}</td>
+                                <td class="db-table-amount">{{ s.reste|floatformat:0 }} FCFA</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon empty-icon--green">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E7A4C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="empty-text">Aucun retard de paiement</div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            <div class="sal-item positive">
-              <div class="sal-label">Total payé</div>
-              <div class="sal-value">{{ total_paye_salaires|default:"0" }}<span class="sal-currency">FCFA</span></div>
+
+            <!-- Derniers paiements -->
+            <div class="card db-card">
+                <div class="db-card-header">
+                    <span class="db-card-title">Derniers paiements</span>
+                    <a href="{% url 'transactions' %}" class="db-card-link">Voir tout</a>
+                </div>
+                <div class="db-card-body db-card-body--no-pad">
+                    {% if derniers_paiements %}
+                    {% for t in derniers_paiements %}
+                    <div class="tx-row">
+                        <div class="tx-dot {% if t.amount > 0 %}tx-dot--in{% else %}tx-dot--out{% endif %}"></div>
+                        <div class="tx-info">
+                            <div class="tx-text">{{ t.text }}</div>
+                            <div class="tx-date">{{ t.created_at|date:"d M Y" }}</div>
+                        </div>
+                        <div class="tx-amount {% if t.amount > 0 %}tx-amount--in{% else %}tx-amount--out{% endif %}">
+                            {% if t.amount > 0 %}+{% endif %}{{ t.amount|floatformat:0 }} <span class="tx-currency">FCFA</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-text">Aucune transaction récente</div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-          </div>
+
         </div>
+        <!-- /col-right -->
 
-        <!-- Retards -->
-        <div class="section-card">
-          <div class="section-head">
-            <div class="section-head-left">
-              <div class="head-icon" style="background:#FFF1F2;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                  <line x1="12" y1="9" x2="12" y2="13"/>
-                  <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-              </div>
-              <div>
-                <div class="head-title">Retards de paiement</div>
-                <div class="head-sub">{{ retard|length }} étudiant{{ retard|length|pluralize:"s" }} en retard</div>
-              </div>
-            </div>
-            {% if retard %}<span class="badge-retard">&#9679; {{ retard|length }}</span>{% endif %}
-          </div>
-          {% if retard %}
-          <div style="overflow-x:auto">
-            <table class="retard-table">
-              <thead>
-                <tr>
-                  <th>Nom</th>
-                  <th>Matricule</th>
-                  <th style="text-align:right">Reste à payer</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for s in retard %}
-                <tr>
-                  <td>{{ s.name }}</td>
-                  <td class="matricule">{{ s.matricule }}</td>
-                  <td class="amount">{{ s.reste }} FCFA</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          {% else %}
-          <div class="empty-state">
-            <div class="empty-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
-              </svg>
-            </div>
-            <div class="empty-text">Aucun retard de paiement</div>
-          </div>
-          {% endif %}
-        </div>
+    </div>
+    <!-- /main-grid -->
 
-      </div><!-- /col-left -->
+</div>
+<!-- /db-wrap -->
+{% endblock %}
 
-      <div class="col-right">
 
-        <!-- Derniers paiements -->
-        <div class="section-card">
-          <div class="section-head">
-            <div class="head-title">Derniers paiements</div>
-            <a href="{% url 'transactions' %}" class="link-small">Voir tout</a>
-          </div>
-          {% if derniers_paiements %}
-            {% for t in derniers_paiements %}
-            <div class="tx-row">
-              <div class="tx-dot {% if t.amount > 0 %}in{% else %}out{% endif %}">
-                {% if t.amount > 0 %}&#8593;{% else %}&#8595;{% endif %}
-              </div>
-              <div class="tx-info">
-                <div class="tx-text">{{ t.text }}</div>
-                <div class="tx-date">{{ t.created_at|date:"d M Y" }}</div>
-              </div>
-              <div class="tx-amount {% if t.amount > 0 %}positive{% else %}negative{% endif %}">
-                {% if t.amount > 0 %}+{% endif %}{{ t.amount|floatformat:0 }} <span class="tx-amount-currency">FCFA</span>
-              </div>
-            </div>
-            {% endfor %}
-          {% else %}
-          <div class="empty-state">
-            <div class="empty-text">Aucune transaction récente</div>
-          </div>
-          {% endif %}
-        </div>
-
-        <!-- Graphique -->
-        <div class="section-card">
-          <div class="section-head">
-            <div class="section-head-left">
-              <div class="head-icon" style="background:#EEF2FF;">&#x1F4C8;</div>
-              <div>
-                <div class="head-title">Évolution financière</div>
-                <div class="head-sub">Revenus vs Dépenses</div>
-              </div>
-            </div>
-          </div>
-          <div style="padding:35px">
-            <canvas id="financeChart" height="210"></canvas>
-          </div>
-        </div>
-
-      </div><!-- /col-right -->
-
-    </div><!-- /main-grid -->
-
-  </div><!-- /db-wrap -->
-
-  <script>
-  (function() {
+{% block extra_js %}
+<script>
+(function () {
     var ctx = document.getElementById("financeChart");
     if (!ctx || typeof Chart === "undefined") return;
-    new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin"],
-        datasets: [
-          {
-            label: "Revenus",
-            data: {{ revenus_chart|default:"[1200000,1800000,1600000,2400000,2800000,3000000]" }},
-            borderColor: "#10b981",
-            backgroundColor: "rgba(16,185,129,.15)",
-            fill: true,
-            tension: .4
-          },
-          {
-            label: "Dépenses",
-            data: {{ depenses_chart|default:"[800000,900000,1000000,1200000,1500000,1700000]" }},
-            borderColor: "#ef4444",
-            backgroundColor: "rgba(239,68,68,.12)",
-            fill: true,
-            tension: .4
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: "bottom" } }
-      }
-    });
-  })();
-  </script>
 
-  {% endblock %}
+    var revenus  = {{ revenus_chart|default:"[9200000,11500000,10800000,13100000,12400000,11250000]"|safe }};
+    var depenses = {{ depenses_chart|default:"[3800000,4200000,4600000,3900000,4800000,4370000]"|safe }};
+    var labels   = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin"];
+
+    var GREEN      = "#1E7A4C";
+    var BRICK      = "#A93A26";
+    var GREEN_FILL = "rgba(30,122,76,.12)";
+    var BRICK_FILL = "rgba(169,58,38,.10)";
+
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "Revenus",
+                    data: revenus,
+                    borderColor: GREEN,
+                    backgroundColor: GREEN_FILL,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointBackgroundColor: GREEN
+                },
+                {
+                    label: "Dépenses",
+                    data: depenses,
+                    borderColor: BRICK,
+                    backgroundColor: BRICK_FILL,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointBackgroundColor: BRICK
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: "circle",
+                        font: { family: "'Inter', sans-serif", size: 12 },
+                        color: "#565F6E",
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: "#fff",
+                    titleColor: "#1B2A4A",
+                    bodyColor: "#565F6E",
+                    borderColor: "#E8E8E8",
+                    borderWidth: 1,
+                    padding: 12,
+                    callbacks: {
+                        label: function (ctx) {
+                            return " " + ctx.dataset.label + " : " +
+                                new Intl.NumberFormat("fr-FR").format(ctx.parsed.y) + " FCFA";
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: { color: "#8891A0", font: { family: "'Inter', sans-serif", size: 12 } }
+                },
+                y: {
+                    grid: { color: "#F0F0F0", lineWidth: 1 },
+                    border: { display: false, dash: [4, 4] },
+                    ticks: {
+                        color: "#8891A0",
+                        font: { family: "'IBM Plex Mono', monospace", size: 11 },
+                        callback: function (v) { return (v / 1000000).toFixed(0) + "M"; }
+                    }
+                }
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}

@@ -6,6 +6,8 @@ from django.utils import timezone
 from rest_framework import generics
 from django.contrib.auth.decorators import login_required
 from .utils import save_log
+from django.db.models.functions import TruncMonth
+import json
 
 from gestion_eleves.models import Etudiant
 from .models import Transaction, DossierFinancier, Enseignant, Personnel, Bus, AffectationTransport, Trajet, DepenseTransport, AuditLog
@@ -107,6 +109,41 @@ def dashboard_view(request):
     total_paye_salaires = (Enseignant.objects.aggregate(total=Sum('montant_paye'))['total'] or Decimal('0')) + \
                           (Personnel.objects.aggregate(total=Sum('montant_paye'))['total'] or Decimal('0'))
 
+    # Données du graphique (6 derniers mois)
+    transactions_par_mois = (
+        Transaction.objects
+        .annotate(mois=TruncMonth("created_at"))
+        .values("mois")
+        .order_by("mois")
+    )
+
+    labels = []
+    revenus_chart = []
+    depenses_chart = []
+
+    for mois in transactions_par_mois:
+        date = mois["mois"]
+
+        revenus = (
+                Transaction.objects.filter(
+                    created_at__year=date.year,
+                    created_at__month=date.month,
+                    amount__gt=0
+                ).aggregate(total=Sum("amount"))["total"] or 0
+        )
+
+        depenses = (
+                Transaction.objects.filter(
+                    created_at__year=date.year,
+                    created_at__month=date.month,
+                    amount__lt=0
+                ).aggregate(total=Sum("amount"))["total"] or 0
+        )
+
+        labels.append(date.strftime("%b"))
+        revenus_chart.append(float(revenus))
+        depenses_chart.append(abs(float(depenses)))
+
     context = {
         **stats,
         'etu': {
@@ -122,6 +159,9 @@ def dashboard_view(request):
         'derniers_paiements': derniers_paiements,
         'total_salaires': total_salaires,
         'total_paye_salaires': total_paye_salaires,
+        'labels_chart': json.dumps(labels),
+        'revenus_chart': json.dumps(revenus_chart),
+        'depenses_chart': json.dumps(depenses_chart),
     }
     return render(request, 'dashboard.html', context)
 
