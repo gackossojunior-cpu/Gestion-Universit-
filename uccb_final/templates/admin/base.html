@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block usertools %}
+<div id="user-tools">
+  {% block welcome-msg %}
+  {% trans 'Welcome,' %}
+  <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+  {% endblock %}
+  {% block header-time %}{% endblock %}
+  {% block userlinks %}
+  / <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a>
+  / <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+  {% endblock %}
+</div>
+{% endblock %}

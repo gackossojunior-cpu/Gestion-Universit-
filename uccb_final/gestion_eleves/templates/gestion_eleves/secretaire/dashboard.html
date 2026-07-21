@@ -1,0 +1,114 @@
+{% extends 'gestion_eleves/secretaire/base_secretaire.html' %}
+{% block title %}Dashboard — Secrétariat UCCB{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+{% block content %}
+
+<div class="row g-3 mb-5">
+  <div class="col-sm-6 col-xl-4">
+    <div class="card scard">
+      <div class="d-flex align-items-center gap-3">
+        <div style="width:50px;height:50px;border-radius:13px;background:rgba(10,22,40,.07);display:flex;align-items:center;justify-content:center;font-size:22px;">🎓</div>
+        <div>
+          <div class="scard-lbl">Total Étudiants</div>
+          <div class="scard-val">{{ stats.total }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% for fac in stats.par_faculte %}
+  <div class="col-sm-6 col-xl-4">
+    <div class="card scard" style="border-left-color:#1a3a7c;">
+      <div class="d-flex align-items-center gap-3">
+        <div style="width:50px;height:50px;border-radius:13px;background:#dbeafe;display:flex;align-items:center;justify-content:center;">
+          <span style="background:#0a1628;color:#c8972a;padding:3px 8px;border-radius:5px;font-size:13px;font-weight:700;">{{ fac.code }}</span>
+        </div>
+        <div>
+          <div class="scard-lbl">{{ fac.nom|truncatechars:22 }}</div>
+          <div class="scard-val" style="color:#1a3a7c;">{{ fac.nb }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="col-sm-6 col-xl-4">
+    <div class="card scard" style="border-left-color:#c8972a;">
+      <div class="d-flex align-items-center gap-3">
+        <div style="width:50px;height:50px;border-radius:13px;background:#fff8e8;display:flex;align-items:center;justify-content:center;font-size:22px;">📅</div>
+        <div>
+          <div class="scard-lbl">Année Académique Active</div>
+          <div style="font-size:18px;font-weight:700;color:#c8972a;line-height:1.2;">{{ annee_active.nom|default:"—" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+    <span style="font-family:''Inter',sans-serif',serif;font-size:17px;color:#0a1628;">Derniers étudiants inscrits</span>
+    <a href="{% url 'sec_liste_etudiants' %}" class="btn btn-sm btn-navy px-3">Voir tout →</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th class="text-center">Matricule</th>
+          <th class="text-center">Nom &amp; Prénom</th>
+          <th class="text-center">Genre</th>
+          <th class="text-center">Âge</th>
+          <th class="text-center">Nationalité</th>
+          <th class="text-center">Faculté</th>
+          <th class="text-center">Portail / Filière</th>
+          <th class="text-center">Semestre</th>
+          <th class="text-center">Cycle</th>
+          <th class="text-center">Statut</th>
+          <th class="text-center">Documents</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for e in recent %}
+      <tr>
+        <td class="text-center"><code style="color:#c8972a;font-size:11px;">{{ e.matricule }}</code></td>
+        <td class="text-center">
+          <div style="font-weight:600;">{{ e.nom|upper }} {{ e.prenom }}</div>
+          <small class="text-muted">{{ e.email }}</small>
+        </td>
+        <td class="text-center"><span style="font-weight:600;">{{ e.genre }}</span></td>
+        <td class="text-center">{{ e.get_age }} ans</td>
+        <td class="text-center"><span class="badge bg-light text-dark border" style="font-size:10px;">{{ e.nationalite }}</span></td>
+        <td class="text-center">
+          <span style="background:#0a1628;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">{{ e.faculte.code }}</span>
+        </td>
+        <td class="text-center">
+          {% if e.semestre == 'S1' or e.semestre == 'S2' %}
+            <span style="color:#1a3a7c;font-size:12px;font-weight:600;">{{ e.portail.nom|default:"—" }}</span>
+          {% else %}
+            <span style="color:#6d28d9;font-size:12px;font-weight:600;">{{ e.filiere.nom|default:"—" }}</span>
+          {% endif %}
+        </td>
+        <td class="text-center"><span class="b-sem">{{ e.semestre }}</span></td>
+        <td class="text-center"><small class="text-muted">{{ e.cycle }}</small></td>
+        <td class="text-center">
+          {% if e.statut == 'actif' %}
+            <span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">Actif</span>
+          {% elif e.statut == 'diplome' %}
+            <span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">Diplômé</span>
+          {% else %}
+            <span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">Abandonné</span>
+          {% endif %}
+        </td>
+        <td class="text-center">
+          <a href="{% url 'sec_attestation' e.id %}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Attestation">📜</a>
+          <a href="{% url 'sec_releve' e.id %}" target="_blank" class="btn btn-sm btn-outline-success" title="Relevé">📊</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="10" class="text-center py-5 text-muted">
+        <div style="font-size:36px;margin-bottom:8px;">📭</div>Aucun étudiant enregistré.
+      </td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

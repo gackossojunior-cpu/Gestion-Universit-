@@ -1,0 +1,109 @@
+{% extends 'gestion_eleves/secretaire/base_secretaire.html' %}
+{% block title %}Ajouter un Étudiant{% endblock %}
+{% block page_title %}Ajouter un Étudiant{% endblock %}
+{% block content %}
+
+{% for msg in messages %}
+<div class="alert alert-{% if 'Erreur' in msg.message or 'existe' in msg.message %}danger{% else %}success{% endif %} mb-3">{{ msg }}</div>
+{% endfor %}
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-4">
+    <form method="POST" class="row g-3">
+      {% csrf_token %}
+      
+      <div class="col-md-12"><h6 class="fw-bold text-navy border-bottom pb-2">Identité</h6></div>
+      
+      <div class="col-md-4">
+        <label class="fl">Nom *</label>
+        <input type="text" name="nom" class="form-control form-control-sm" required placeholder="NOM">
+      </div>
+      <div class="col-md-4">
+        <label class="fl">Prénom *</label>
+        <input type="text" name="prenom" class="form-control form-control-sm" required placeholder="Prénom">
+      </div>
+      <div class="col-md-2">
+        <label class="fl">Genre *</label>
+        <select name="genre" class="form-select form-select-sm" required>
+          <option value="">—</option>
+          <option value="M">Masculin</option>
+          <option value="F">Féminin</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="fl">Date de naissance *</label>
+        <input type="date" name="date_naissance" class="form-control form-control-sm" required>
+      </div>
+      <div class="col-md-4">
+        <label class="fl">Nationalité</label>
+        <input type="text" name="nationalite" class="form-control form-control-sm" value="Congolaise">
+      </div>
+      <div class="col-md-4">
+        <label class="fl">Email universitaire *</label>
+        <input type="email" name="email" class="form-control form-control-sm" required placeholder="prenom.nom@uccb.cg">
+      </div>
+
+      <div class="col-md-12 mt-3"><h6 class="fw-bold text-navy border-bottom pb-2">Cursus</h6></div>
+
+      <div class="col-md-3">
+        <label class="fl">Faculté *</label>
+        <select name="faculte" class="form-select form-select-sm" required id="selFac">
+          <option value="">— Sélectionner —</option>
+          {% for f in facultes %}<option value="{{ f.id }}">{{ f.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="fl">Année Académique *</label>
+        <select name="annee_academique" class="form-select form-select-sm" required>
+          <option value="">— Sélectionner —</option>
+          {% for a in annees %}<option value="{{ a.id }}" {% if a.est_active %}selected{% endif %}>{{ a.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="fl">Semestre *</label>
+        <select name="semestre" class="form-select form-select-sm" required id="selSem">
+          {% for s in semestres %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="fl">Portail (S1-S2)</label>
+        <select name="portail" class="form-select form-select-sm" id="selPortail">
+          <option value="">— Aucun —</option>
+          {% for p in portails %}<option value="{{ p.id }}" data-fac="{{ p.faculte_id }}">{{ p.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="fl">Filière (S3+)</label>
+        <select name="filiere" class="form-select form-select-sm">
+          <option value="">— Aucune —</option>
+          {% for f in filieres %}<option value="{{ f.id }}">{{ f.nom }}</option>{% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-12 mt-3"><h6 class="fw-bold text-navy border-bottom pb-2">Statut financier</h6></div>
+      <div class="col-md-4">
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" name="en_regle" id="enRegle" checked>
+          <label class="form-check-label" for="enRegle">Étudiant en règle financièrement</label>
+        </div>
+      </div>
+
+      <div class="col-12 mt-4 d-flex gap-3">
+        <button type="submit" class="btn btn-navy px-5">Enregistrer l'étudiant</button>
+        <a href="{% url 'sec_liste_etudiants' %}" class="btn btn-outline-secondary px-4">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Filtrer les portails selon la faculté sélectionnée
+document.getElementById('selFac').addEventListener('change', function() {
+  const fac = this.value;
+  document.querySelectorAll('#selPortail option').forEach(opt => {
+    if (!opt.value) return;
+    opt.style.display = opt.dataset.fac === fac ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'gestion_eleves/enseignant/base_enseignant.html' %}
+{% block title %}Matrice A3 — Enseignant{% endblock %}
+{% block page_title %}Matrice A3 — Délibération PDF{% endblock %}
+{% block content %}
+<div class="card" style="max-width:560px;margin:40px auto;">
+  <div class="card-header bg-white py-3" style="font-size:16px;font-weight:700;color:#0f2027;">📄 Générer la Matrice A3</div>
+  <div class="card-body p-4">
+    <p class="text-muted small mb-4">Format A3 paysage — signé par le Doyen/Doyenne de la faculté.</p>
+    <form method="GET">
+      <div class="mb-3">
+        <label class="fl">Faculté</label>
+        <select name="faculte" class="form-select" required>
+          <option value="">— Sélectionner —</option>
+          {% for f in facultes %}<option value="{{ f.id }}" {% if f.id == fac_id %}selected{% endif %}>{{ f.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="fl">Semestre</label>
+        <select name="semestre" class="form-select" required>
+          <option value="">— Semestre —</option>
+          {% for s in semestres %}<option value="{{ s }}" {% if s == sem_id %}selected{% endif %}>Semestre {{ s|slice:"1:" }}</option>{% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-danger w-100 py-2 fw-bold"><i class="fas fa-file-pdf me-2"></i>Générer & Ouvrir le PDF A3</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

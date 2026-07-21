@@ -1,0 +1,49 @@
+{% extends 'gestion_eleves/secretaire/base_secretaire.html' %}
+{% block title %}Matrice A3 — Secrétariat{% endblock %}
+{% block page_title %}Matrice A3 — Délibération{% endblock %}
+{% block content %}
+<div class="card" style="max-width:560px;margin:40px auto;">
+  <div class="card-header bg-white py-3" style="font-family:''Inter',sans-serif',serif;font-size:18px;color:#0a1628;">
+    📄 Générer la Matrice A3
+  </div>
+  <div class="card-body p-4">
+    <p class="text-muted small mb-4">Sélectionnez une faculté et un semestre pour générer le procès-verbal A3 paysage PDF.</p>
+    <form method="GET">
+      <div class="mb-3">
+        <label class="fl">Faculté</label>
+        <select name="faculte" class="form-select" required onchange="this.form.submit()">
+          <option value="">— Sélectionner —</option>
+          {% for f in facultes %}<option value="{{ f.id }}" {% if f.id == fac_id %}selected{% endif %}>{{ f.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="fl">Semestre</label>
+        <select name="semestre" class="form-select" required onchange="this.form.submit()">
+          <option value="">— Semestre —</option>
+          {% for s in semestres %}<option value="{{ s }}" {% if s == sem_id %}selected{% endif %}>Semestre {{ s|slice:"1:" }}</option>{% endfor %}
+        </select>
+      </div>
+      {% if sem_id == 'S1' or sem_id == 'S2' %}
+      <div class="mb-3">
+        <label class="fl">Portail</label>
+        <select name="portail" class="form-select" onchange="this.form.submit()">
+          <option value="">— Tous les portails —</option>
+          {% for p in portails_dispo %}<option value="{{ p.id }}" {% if p.id == portail_id %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      {% elif sem_id %}
+      <div class="mb-3">
+        <label class="fl">Filière</label>
+        <select name="filiere" class="form-select" onchange="this.form.submit()">
+          <option value="">— Toutes les filières —</option>
+          {% for f in filieres_dispo %}<option value="{{ f.id }}" {% if f.id == filiere_id %}selected{% endif %}>{{ f.nom }}</option>{% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <button type="submit" class="btn btn-danger w-100 py-2 fw-bold">
+        <i class="fas fa-file-pdf me-2"></i>Générer & Ouvrir le PDF A3
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

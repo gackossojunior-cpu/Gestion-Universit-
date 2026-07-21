@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UCCB — Espace Faculté</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:stretch;}
+.panel-left{flex:1;background:linear-gradient(135deg,#0f2027 0%,#203a43 50%,#2c5364 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;text-align:center;}
+.panel-left h1{font-size:36px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.2;}
+.panel-left p{font-size:14px;color:rgba(255,255,255,.55);max-width:320px;line-height:1.7;}
+.panel-left .badge{display:inline-block;background:rgba(200,151,42,.15);border:1px solid rgba(200,151,42,.35);color:#c8972a;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;margin-top:24px;letter-spacing:.08em;text-transform:uppercase;}
+.panel-right{width:420px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 48px;}
+.panel-right h2{font-size:22px;font-weight:700;color:#0f2027;margin-bottom:6px;}
+.panel-right .sub{font-size:13px;color:#6b7280;margin-bottom:32px;}
+.field{width:100%;margin-bottom:18px;}
+label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;}
+input{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;transition:border-color .2s;}
+input:focus{outline:none;border-color:#0f2027;}
+.btn{width:100%;padding:13px;background:#0f2027;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px;transition:background .18s;}
+.btn:hover{background:#1a3a5c;}
+.alert{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:18px;width:100%;}
+.links{text-align:center;margin-top:20px;font-size:12.5px;color:#9ca3af;}
+.links a{color:#0f2027;font-weight:600;text-decoration:none;margin:0 6px;}
+</style>
+</head>
+<body>
+<div class="panel-left">
+  <h1>Espace<br>Faculté</h1>
+  <p>Calculs des moyennes, délibération, passage au semestre suivant, orientation et matrice A3.</p>
+  <span class="badge">Département Faculté</span>
+</div>
+<div class="panel-right">
+  <h2>Connexion</h2>
+  <p class="sub">Espace réservé au personnel de la faculté</p>
+  {% for msg in messages %}
+  <div class="alert">{{ msg }}</div>
+  {% endfor %}
+  <form method="POST" autocomplete="off" style="width:100%;">
+    {% csrf_token %}
+    <div class="field">
+      <label>Identifiant</label>
+      <input type="text" name="username" placeholder="Votre identifiant" required autofocus>
+    </div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <input type="password" name="password" placeholder="••••••••" required>
+    </div>
+    <button type="submit" class="btn">Accéder →</button>
+  </form>
+  <div class="links">
+    <a href="{% url 'reset_mdp_faculte' %}">Mot de passe oublié ?</a>
+    &nbsp;·&nbsp;
+    <a href="{% url 'portail_accueil' %}">← Retour au portail</a>
+  </div>
+</div>
+<script>
+window.history.pushState(null,'',window.location.href);
+window.onpopstate=function(){window.history.pushState(null,'',window.location.href);};
+</script>
+</body>
+</html>

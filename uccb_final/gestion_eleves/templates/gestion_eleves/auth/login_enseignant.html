@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UCCB — Enseignant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;overflow:hidden;}
+.panel-left{flex:1;background:linear-gradient(145deg,#0f2027 0%,#203a43 50%,#2c5364 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;position:relative;}
+.panel-left::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,180,216,.1),transparent 70%);bottom:-80px;left:-80px;pointer-events:none;}
+.brand{text-align:center;z-index:2;position:relative;}
+.logo{width:72px;height:72px;border-radius:18px;background:rgba(200,151,42,.15);border:1px solid rgba(200,151,42,.3);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#c8972a;margin:0 auto 20px;}
+.brand h1{font-family:''Inter',sans-serif',serif;font-size:36px;color:#fff;font-weight:700;margin-bottom:6px;}
+.brand .sub{font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.12em;text-transform:uppercase;}
+.divider{width:50px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,180,216,.5),transparent);margin:22px auto;}
+.features{list-style:none;text-align:left;max-width:240px;margin:0 auto;}
+.features li{font-size:12.5px;color:rgba(255,255,255,.55);padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:9px;}
+.features li:last-child{border:none;}
+.panel-right{width:460px;background:#fff;display:flex;align-items:center;justify-content:center;padding:56px 52px;}
+.form-wrap{width:100%;}
+.role-pill{display:inline-flex;align-items:center;gap:5px;background:#eef9fc;border:1px solid #00b4d8;color:#0077a8;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:22px;}
+h2{font-family:''Inter',sans-serif',serif;font-size:28px;color:#0f2027;margin-bottom:4px;}
+.hint{font-size:12px;color:#8a94a6;margin-bottom:28px;}
+label{display:block;font-size:10px;font-weight:700;color:#4a5568;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
+input[type=text],input[type=password]{width:100%;padding:12px 15px;border:1.5px solid #e2e8f0;border-radius:9px;font-family:'Inter',sans-serif;font-size:14px;color:#0f2027;outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:18px;}
+input:focus{border-color:#00b4d8;box-shadow:0 0 0 3px rgba(0,180,216,.1);}
+.btn{width:100%;padding:13px;background:linear-gradient(135deg,#0f2027,#2c5364);color:#fff;border:none;border-radius:9px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,32,39,.3);}
+.err{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;color:#dc2626;font-size:12px;margin-bottom:14px;}
+.switch{text-align:center;margin-top:22px;font-size:12px;color:#8a94a6;}
+.switch a{color:#0f2027;text-decoration:none;font-weight:600;}
+.switch a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="panel-left">
+  <div class="brand">
+    <div class="logo">U</div>
+    <h1>Espace Enseignant</h1>
+    <div class="sub">UCCB — Délibérations</div>
+    <div class="divider"></div>
+    <ul class="features">
+      <li>📊 Délibération & calcul des moyennes</li>
+      <li>✏️ Saisie et mise à jour des notes</li>
+      <li>👤 Correction individuelle d'un étudiant</li>
+      <li>📄 Export Excel & Matrice A3 PDF</li>
+    </ul>
+  </div>
+</div>
+<div class="panel-right">
+  <div class="form-wrap">
+    <div class="role-pill">👨‍🏫 Enseignant</div>
+    <h2>Connexion</h2>
+    <p class="hint">Accès à l'espace de délibération</p>
+    {% for msg in messages %}
+    <div class="err">⚠️ {{ msg }}</div>
+    {% endfor %}
+    <form method="POST" autocomplete="off">
+      {% csrf_token %}
+      <label>Nom d'utilisateur</label>
+      <input type="text" name="username" placeholder="votre identifiant" required autofocus>
+      <label>Mot de passe</label>
+      <input type="password" name="password" placeholder="••••••••" required>
+      <button class="btn" type="submit">Accéder →</button>
+    </form>
+  <p style="text-align:center;margin-top:16px;font-size:13px;color:#6b7280;">
+    <a href="{% url 'reset_mdp_enseignant' %}" style="color:#1e2d40;font-weight:600;text-decoration:none;">
+      Mot de passe oublié ?
+    </a>
+  </p>
+  
+    <div class="switch">
+      Vous êtes du secrétariat ? <a href="{% url 'login_secretaire' %}">← Connexion Secrétariat</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

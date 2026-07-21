@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>PV Délibération — {{ faculte.code }} {{ sem_id }}</title>
+<style>
+@page {
+  size: a3 landscape;
+  margin: 1cm 0.9cm 1.5cm 0.9cm;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7.5px;
+  color: #000;
+  background: #fff;
+}
+
+/* EN-TÊTE */
+.entete {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1.5px solid #000;
+}
+.logo-bloc {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 65px;
+}
+.logo { height: 52px; width: auto; display: block; object-fit: contain; }
+.devise { font-size: 6px; font-style: italic; margin-top: 3px; text-align: center; }
+.entete-centre { flex: 1; text-align: center; padding-top: 4px; }
+.uni-nom { font-size: 11px; font-weight: bold; display: block; }
+.uni-fac { font-size: 9px; font-weight: bold; display: block; margin-top: 2px; }
+.uni-meta {
+  font-size: 7.5px; margin-top: 5px;
+  display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
+}
+
+/* TITRE */
+.titre-pv {
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 8px 0 10px;
+}
+
+/* TABLEAU */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+col.rang       { width: 22px; }
+col.nom        { width: 180px; }
+col.matricule  { width: 70px; }
+col.sexe       { width: 20px; }
+col.matiere    { width: 38px; }
+col.mue        { width: 38px; }
+col.credit     { width: 25px; }
+col.moyenne    { width: 45px; }
+col.credittotal{ width: 45px; }
+col.decision   { width: 72px; }
+
+th, td {
+  border: 1px solid #8b8b8b;
+  padding: 3px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+  hyphens: auto;
+}
+th { text-transform: uppercase; }
+
+.th-1 {
+  background: #1d3557;
+  color: #fff;
+  font-weight: bold;
+  font-size: 7px;
+  border: 1px solid white;
+}
+.th-2 {
+  background: #457b9d;
+  color: white;
+  font-size: 6.5px;
+  font-weight: bold;
+  line-height: 1.2;
+  border: 1px solid white;
+}
+.th-3 {
+  background: #6d9dc5;
+  color: white;
+  font-size: 6px;
+  border: 1px solid white;
+}
+
+td.note    { font-size: 7.5px; font-weight: bold; color: #000; }
+td.note-ko { color: #c1121f; text-decoration: underline; }
+td.note-ns { color: #8d99ae; font-style: italic; font-weight: normal; }
+td.mue     { font-size: 7.5px; }
+td.mue-ok  { background: #d9ead3; font-weight: bold; }
+td.mue-ko  { background: #f8f9fa; }
+td.dec     { font-size: 7.5px; font-weight: bold; }
+td.dec-ok  { background: #d9ead3; color: #1b4332; font-weight: bold; }
+td.dec-ko  { background: #ffe5d9; color: #9d0208; font-style: italic; }
+
+tbody tr { min-height: 24px; }
+tbody td {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+tbody tr:hover { background: #edf6f9; }
+
+/* LÉGENDE */
+.legende {
+  margin-top: 10px;
+  padding: 6px 10px;
+  font-size: 6.5px;
+  color: #333;
+  background: #f8f9fa;
+  border: 1px solid #d6d6d6;
+  border-radius: 3px;
+}
+
+/* SIGNATURE simple */
+.signatures {
+  margin-top: 14px;
+  text-align: right;
+  font-size: 8px;
+  font-style: italic;
+}
+
+/* FOOTER */
+.footer {
+  position: fixed;
+  bottom: 0.4cm;
+  left: 0.9cm;
+  right: 0.9cm;
+  padding-top: 4px;
+  text-align: center;
+  font-size: 6px;
+  color: #666;
+  border-top: 1px solid #d8d8d8;
+}
+
+/* IMPRESSION */
+thead { display: table-header-group; }
+tfoot { display: table-footer-group; }
+tr    { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- EN-TÊTE -->
+<div class="entete">
+  <div class="logo-bloc">
+    <img src="{% static 'gestion_eleves/img/logo_uccb.jpg' %}" class="logo" alt="UCCB">
+    <span class="devise">Omnia Vincit Labor</span>
+  </div>
+  <div class="entete-centre">
+    <span class="uni-nom">UNIVERSITÉ CATHOLIQUE DU CONGO – BRAZZAVILLE</span>
+    <span class="uni-fac" style="font-weight:bold;">{{ faculte.nom }}</span>
+    <div class="uni-meta">
+      <span>Niveau :
+        {% if sem_id == 'S1' or sem_id == 'S2' %}Licence 1
+        {% elif sem_id == 'S3' or sem_id == 'S4' %}Licence 2
+        {% elif sem_id == 'S5' or sem_id == 'S6' %}Licence 3
+        {% else %}Master{% endif %}
+      </span>
+      <span>Semestre : {{ sem_id }}</span>
+      <span>Parcours :
+        {% if structure %}
+          {% if sem_id == 'S1' or sem_id == 'S2' %}{{ structure.0.etudiant.portail.nom|default:"—" }}
+          {% else %}{{ structure.0.etudiant.filiere.nom|default:"—" }}{% endif %}
+        {% endif %}
+      </span>
+      <span>Année : {{ structure.0.etudiant.annee_academique.nom|default:"—" }}</span>
+      <span>Date : {{ date }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- TITRE -->
+<div class="titre-pv">Procès-Verbal de Délibération</div>
+
+<!-- TABLEAU -->
+<table>
+  <colgroup>
+    <col class="rang">
+    <col class="nom">
+    <col class="matricule">
+    <col class="sexe">
+    {% for ue in unites %}
+      {% for mat in ue.matieres.all %}
+        <col class="matiere">
+      {% endfor %}
+      <col class="mue">
+      <col class="credit">
+    {% endfor %}
+    <col class="moyenne">
+    <col class="credittotal">
+    <col class="decision">
+  </colgroup>
+
+  <thead>
+    <tr>
+      <th class="th-1" rowspan="3">Rang</th>
+      <th class="th-1" rowspan="3" style="text-align:left;padding-left:4px;">NOM ET PRÉNOM(S)</th>
+      <th class="th-1" rowspan="3" style="font-size:5.5px;">MATRICULE</th>
+      <th class="th-1" rowspan="3">S.</th>
+      {% for ue in unites %}
+      <th class="th-1" colspan="{{ ue.matieres.count|add:2 }}">
+        {{ ue.nom }}
+        <br><span style="font-size:5px;font-weight:normal;">{{ ue.credits_total }} cr.</span>
+      </th>
+      {% endfor %}
+      <th class="th-1" rowspan="3">MOY.<br>GÉN.</th>
+      <th class="th-1" rowspan="3" style="font-size:5.5px;">CR.<br>ACQ.</th>
+      <th class="th-1" rowspan="3">DÉCISION<br>DU JURY</th>
+    </tr>
+    <tr>
+      {% for ue in unites %}
+        {% for mat in ue.matieres.all %}
+        <th class="th-2">
+          <div style="font-size:6px;font-weight:bold;line-height:1.15;">{{ mat.nom }}</div>
+          <div style="font-size:5px;font-weight:normal;">{{ mat.credits }} cr.</div>
+        </th>
+        {% endfor %}
+        <th class="th-2">M.UE</th>
+        <th class="th-2">CR.</th>
+      {% endfor %}
+    </tr>
+    <tr>
+      {% for ue in unites %}
+        {% for mat in ue.matieres.all %}<th class="th-3">/20</th>{% endfor %}
+        <th class="th-3">/20</th>
+        <th class="th-3">V.</th>
+      {% endfor %}
+    </tr>
+  </thead>
+
+  <tbody>
+  {% for ligne in structure %}
+  <tr>
+    <td style="font-weight:bold;font-size:7px;">{{ ligne.rang }}</td>
+    <td style="text-align:left;padding-left:4px;font-size:7px;">
+      <strong style="letter-spacing:0.3px;">{{ ligne.etudiant.nom|upper }}</strong>
+      {{ ligne.etudiant.prenom }}
+    </td>
+    <td style="font-size:5.5px;font-family:monospace;letter-spacing:-0.3px;">{{ ligne.etudiant.matricule }}</td>
+    <td style="font-size:7px;">
+      {{ ligne.etudiant.genre }}
+    </td>
+    {% for ue_data in ligne.ues_detail %}
+      {% for m_data in ue_data.matieres %}
+      <td class="note{% if m_data.non_saisi or m_data.is_absent %} note-ns{% elif m_data.note_calculee is not None and m_data.note_calculee < 6 %} note-ko{% endif %}">
+        {% if m_data.non_saisi %}—{% elif m_data.is_absent %}ABS{% else %}{{ m_data.note_calculee|floatformat:2 }}{% endif %}
+      </td>
+      {% endfor %}
+      <td class="mue {% if ue_data.moyenne_ue >= 10 %}mue-ok{% else %}mue-ko{% endif %}">
+        {{ ue_data.moyenne_ue|floatformat:2 }}
+      </td>
+      <td style="font-size:6.5px;">{% if ue_data.est_validee %}V{% else %}—{% endif %}</td>
+    {% endfor %}
+    <td style="font-weight:bold;font-size:8px;color:#003049;">{{ ligne.moyenne_semestre|floatformat:2 }}</td>
+    <td style="font-size:6.5px;">{{ ligne.total_credits_valides }}/{{ ligne.total_credits_semestre }}</td>
+    <td class="dec {% if ligne.decision == 'ADMIS' %}dec-ok{% else %}dec-ko{% endif %}">
+      {{ ligne.decision }}
+      {% if ligne.mention != 'NEANT' and ligne.mention != 'NÉANT' %}
+      <br><span style="font-size:5.5px;font-weight:normal;">{{ ligne.mention }}</span>
+      {% endif %}
+    </td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="50" style="text-align:center;padding:12px;color:#888;font-style:italic;">Aucun résultat.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<!-- LÉGENDE -->
+<div class="legende">
+  <strong>LÉGENDE :</strong>
+  Notes = moyenne des matières &nbsp;|&nbsp;
+  V = UE validée &nbsp;|&nbsp;
+  ABS = Absent &nbsp;|&nbsp;
+  — = Non saisi &nbsp;|&nbsp;
+  Note rouge soulignée = éliminatoire (&lt; 6)
+</div>
+
+<!-- SIGNATURE simple à droite -->
+<div class="signatures">
+  Fait à
+  {% if parametres %}{{ parametres.ville_signature }}{% else %}Liambou{% endif %},
+  le {{ date }}
+</div>
+
+<div class="footer">
+  Université Catholique du Congo-Brazzaville (UCCB) — Arrêté N°9554/MESRSIT/CAB du 21/09/2020 — Document officiel
+</div>
+
+</body>
+</html>

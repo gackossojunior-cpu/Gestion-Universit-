@@ -1,0 +1,70 @@
+{% extends 'gestion_eleves/secretaire/base_secretaire.html' %}
+{% block title %}Années Académiques{% endblock %}
+{% block page_title %}Gestion des Années Académiques{% endblock %}
+{% block content %}
+
+{% for msg in messages %}
+<div class="alert alert-{% if 'Erreur' in msg.message %}danger{% else %}success{% endif %} mb-3">{{ msg }}</div>
+{% endfor %}
+
+<div class="row g-3">
+  <div class="col-md-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pt-3"><h6 class="fw-bold mb-0">Ajouter une année</h6></div>
+      <div class="card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="ajouter">
+          <div class="mb-3">
+            <label class="fl">Nom (format : 2025-2026)</label>
+            <input type="text" name="nom" class="form-control form-control-sm" placeholder="2025-2026" required pattern="\d{4}-\d{4}">
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="activer" id="activer">
+            <label class="form-check-label" for="activer">Définir comme année active</label>
+          </div>
+          <button type="submit" class="btn btn-navy w-100">Ajouter</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pt-3"><h6 class="fw-bold mb-0">Années enregistrées</h6></div>
+      <div class="card-body p-0">
+        <table class="table mb-0" style="font-size:13px;">
+          <thead style="background:#f8f9fa;font-size:11px;text-transform:uppercase;">
+            <tr><th>Année</th><th class="text-center">Statut</th><th class="text-center">Action</th></tr>
+          </thead>
+          <tbody>
+          {% for a in annees %}
+          <tr>
+            <td><strong>{{ a.nom }}</strong></td>
+            <td class="text-center">
+              {% if a.est_active %}
+              <span style="background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700;">Active</span>
+              {% else %}
+              <span style="background:#f3f4f6;color:#6b7280;padding:2px 10px;border-radius:10px;font-size:11px;">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              {% if not a.est_active %}
+              <form method="POST" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="activer">
+                <input type="hidden" name="annee_id" value="{{ a.id }}">
+                <button type="submit" class="btn btn-sm btn-outline-success">Activer</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" class="text-center text-muted py-4">Aucune année enregistrée.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
