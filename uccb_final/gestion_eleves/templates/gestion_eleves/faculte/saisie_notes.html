@@ -4,7 +4,11 @@
 {% block page_title %}Saisie des Notes{% endblock %}
 {% block extra_css %}
 <style>
+<<<<<<< HEAD
 .scol{position:sticky;left:0;background:#fff!important;z-index:5;border-right:3px solid #0f2027!important;min-width:200px;text-align:center;}
+=======
+.scol{position:sticky;left:0;background:#fff!important;z-index:5;border-right:3px solid #0f2027!important;min-width:200px;}
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 .ni{width:66px;text-align:center;border:1.5px solid #dde8f0;border-radius:6px;padding:4px 3px;font-weight:600;font-size:12px;font-family:''Inter',sans-serif',monospace;transition:border-color .15s;}
 .ni:focus{border-color:#00b4d8;outline:none;box-shadow:0 0 0 3px rgba(0,180,216,.1);}
 .ni.r{border-color:#ffd166;background:#fffbeb;}
@@ -23,18 +27,27 @@
     <form method="GET" class="row g-2 align-items-end">
       <div class="col-md-3">
         <label class="fl">Faculté</label>
+<<<<<<< HEAD
         <select name="faculte" class="form-select" onchange="this.form.submit()">
+=======
+        <select name="faculte" class="form-select" onchange="loadUes()">
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
           <option value="">— Sélectionner —</option>
           {% for f in facultes %}<option value="{{ f.id }}" {% if f.id == fac_id %}selected{% endif %}>{{ f.nom }}</option>{% endfor %}
         </select>
       </div>
       <div class="col-md-2">
         <label class="fl">Semestre</label>
+<<<<<<< HEAD
         <select name="semestre" class="form-select" onchange="this.form.submit()">
+=======
+        <select name="semestre" class="form-select" onchange="loadUes()">
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
           <option value="">— Semestre —</option>
           {% for s in semestres %}<option value="{{ s }}" {% if s == sem %}selected{% endif %}>Sem. {{ s|slice:"1:" }}</option>{% endfor %}
         </select>
       </div>
+<<<<<<< HEAD
       {% if sem == 'S1' or sem == 'S2' %}
       <div class="col-md-2">
         <label class="fl">Portail</label>
@@ -57,6 +70,9 @@
       </div>
       {% endif %}
       <div class="col-md-2">
+=======
+      <div class="col-md-4">
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
         <label class="fl">Unité d'Enseignement</label>
         <select name="ue" class="form-select" id="sUe">
           <option value="">— Choisir l'UE —</option>

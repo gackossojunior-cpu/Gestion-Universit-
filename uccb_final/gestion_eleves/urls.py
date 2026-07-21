@@ -42,11 +42,14 @@ urlpatterns = [
     path('faculte/promotion/appliquer/', views_secretaire.sec_appliquer_promotion, name='sec_appliquer_promotion'),
     path('faculte/orientation-s3/',      views_secretaire.sec_orientation_s3,      name='sec_orientation_s3'),
 
+<<<<<<< HEAD
     # ── GESTION SECRÉTARIAT ──────────────────────────────────
     path('secretaire/etudiant/ajouter/', views_secretaire.sec_ajouter_etudiant,   name='sec_ajouter_etudiant'),
     path('secretaire/annees/',           views_secretaire.sec_annees_academiques,  name='sec_annees_academiques'),
     path('secretaire/facultes/',         views_secretaire.sec_facultes,            name='sec_facultes'),
 
+=======
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
     # ── ESPACE ÉTUDIANT ───────────────────────────────────────
     path('etudiant/inscription/',        views_etudiant.inscription_etudiant, name='inscription_etudiant'),
     path('etudiant/connexion/',          views_etudiant.login_etudiant,       name='login_etudiant'),
@@ -54,6 +57,7 @@ urlpatterns = [
     path('etudiant/dashboard/',          views_etudiant.etu_dashboard,        name='etu_dashboard'),
     path('etudiant/reset-mdp/',          views_etudiant.reset_mdp_etudiant,   name='reset_mdp_etudiant'),
 
+<<<<<<< HEAD
     # ── ESPACE ENSEIGNANT (alias → redirige vers Espace Faculté) ──
     path('enseignant/dashboard/',    views_auth.redirect_to_faculte,  name='ens_dashboard'),
     path('enseignant/classe/',       views_auth.redirect_to_faculte,  name='ens_liste_classe'),
@@ -61,12 +65,27 @@ urlpatterns = [
     path('enseignant/deliberation/', views_auth.redirect_to_faculte,  name='ens_deliberation'),
     path('enseignant/note/<int:etudiant_id>/', views_auth.redirect_to_faculte, name='ens_note_individuelle'),
     path('enseignant/matrice-a3/',   views_auth.redirect_to_faculte,  name='ens_matrice_a3'),
+=======
+    # ── ESPACE ENSEIGNANT (ancien — gardé pour compatibilité) ──
+    path('enseignant/dashboard/',    views_enseignant.ens_dashboard,         name='ens_dashboard'),
+    path('enseignant/classe/',       views_enseignant.ens_liste_classe,      name='ens_liste_classe'),
+    path('enseignant/saisie-notes/', views_enseignant.ens_saisie_notes,      name='ens_saisie_notes'),
+    path('enseignant/deliberation/', views_enseignant.ens_deliberation,      name='ens_deliberation'),
+    path('enseignant/note/<int:etudiant_id>/', views_enseignant.ens_note_individuelle, name='ens_note_individuelle'),
+    path('enseignant/matrice-a3/',   views_enseignant.ens_matrice_a3,        name='ens_matrice_a3'),
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 
     # ── QR CODE PUBLIC ────────────────────────────────────────
     path('notes-etudiant/<int:etudiant_id>/', views_enseignant.vue_qr_etudiant, name='vue_qr_etudiant'),
 
     # ── API ───────────────────────────────────────────────────
+<<<<<<< HEAD
     path('api/portails/', views_secretaire.api_portails, name='api_portails'),
     path('api/filieres/', views_secretaire.api_filieres, name='api_filieres'),
     path('api/ues/',      views_secretaire.api_ues,      name='api_ues'),
+=======
+    path('gestion_finance/portails/', views_secretaire.api_portails, name='api_portails'),
+    path('gestion_finance/filieres/', views_secretaire.api_filieres, name='api_filieres'),
+    path('gestion_finance/ues/',      views_secretaire.api_ues,      name='api_ues'),
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 ]

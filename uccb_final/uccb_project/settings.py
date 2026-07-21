@@ -1,8 +1,16 @@
 from pathlib import Path
+<<<<<<< HEAD
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-uccb-gestion-academique-change-in-production-2025'
+=======
+from decouple import config
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = config('SECRET_KEY')
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 
 DEBUG = True
 
@@ -15,7 +23,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+<<<<<<< HEAD
     'gestion_eleves',
+=======
+    'rest_framework',
+    'gestion_eleves',
+    'gestion_finance.apps.GestionFinanceConfig',
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 ]
 
 MIDDLEWARE = [
@@ -52,6 +66,7 @@ WSGI_APPLICATION = 'uccb_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+<<<<<<< HEAD
         'NAME': 'Daron',
         'USER': 'root',
         'PASSWORD': 'Daron',
@@ -61,6 +76,13 @@ DATABASES = {
             'charset': 'utf8mb4',
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
+=======
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': '3306',
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
     }
 }
 
@@ -85,7 +107,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+<<<<<<< HEAD
 LOGIN_URL = '/'
+=======
+LOGIN_URL = '/finance/connexion/'
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 
 # Noms des groupes (utilisés dans les décorateurs)
 GROUPE_SECRETAIRE = 'Secretariat'

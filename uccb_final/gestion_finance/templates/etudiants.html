@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* ── En-tête page ── */
+  .page-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
+  .page-eyebrow { font-size: 11px; font-weight: 600; color: #94A3B8; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+  .page-title   { font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -.4px; }
+
+  /* ── Bouton principal ── */
+  .btn-add {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg,#3B5BDB,#2d4ac7);
+    color: #fff; padding: 10px 20px; border-radius: 12px;
+    font-size: 13.5px; font-weight: 600; border: none; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(59,91,219,.3);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn-add:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,91,219,.4); }
+
+  /* ── Filtres ── */
+  .filter-box {
+    background: #fff; border: 1px solid #E2E8F0; border-radius: 16px;
+    padding: 20px; margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .filter-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .filter-search { position: relative; flex: 1; min-width: 200px; }
+  .filter-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94A3B8; }
+  .filter-search input { width: 100%; padding: 10px 12px 10px 38px; border: 1.5px solid #E2E8F0; border-radius: 10px; font-size: 13.5px; background: #F8FAFC; outline: none; transition: border-color .15s, box-shadow .15s; }
+  .filter-search input:focus { border-color: #3B5BDB; box-shadow: 0 0 0 3px rgba(59,91,219,.1); }
+  .filter-row select {
+    padding: 10px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px;
+    font-size: 13.5px; background: #F8FAFC; color: #0F172A; outline: none;
+    transition: border-color .15s;
+  }
+  .filter-row select:focus { border-color: #3B5BDB; }
+  .btn-filter {
+    padding: 10px 22px; background: #0F172A; color: #fff; border: none;
+    border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer;
+    transition: background .15s;
+  }
+  .btn-filter:hover { background: #1e293b; }
+
+  /* ── Stat cards ── */
+  .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+  .scard {
+    border-radius: 16px; padding: 20px 22px; color: #fff;
+    display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    transition: transform .2s;
+  }
+  .scard:hover { transform: translateY(-2px); }
+  .scard.dark   { background: linear-gradient(135deg,#1e293b,#0f172a); }
+  .scard.green  { background: linear-gradient(135deg,#10B981,#059669); }
+  .scard.amber  { background: linear-gradient(135deg,#F59E0B,#D97706); }
+  .scard.rose   { background: linear-gradient(135deg,#F43F5E,#E11D48); }
+  .scard-icon { width: 38px; height: 38px; background: rgba(255,255,255,.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .scard-val   { font-size: 30px; font-weight: 800; line-height: 1; }
+  .scard-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; opacity: .7; }
+
+  /* ── Table wrapper ── */
+  .table-card { background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .table-card-head { padding: 16px 24px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; justify-content: space-between; }
+  .table-card-head h3 { font-size: 15px; font-weight: 700; color: #0F172A; }
+  .table-card-head span { font-size: 13px; color: #94A3B8; }
+  .table-scroll { overflow-x: auto; }
+
+  /* ── Table ── */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .data-table thead tr { background: #F8FAFC; }
+  .data-table thead th { padding: 12px 20px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #64748B; }
+  .data-table thead th.center { text-align: center; }
+  .data-table thead th.right  { text-align: right; }
+  .data-table tbody tr { border-bottom: 1px solid #F1F5F9; transition: background .15s; }
+  .data-table tbody tr:last-child { border-bottom: none; }
+  .data-table tbody tr:hover { background: #F8FAFC; }
+  .data-table td { padding: 14px 20px; color: #334155; vertical-align: middle; }
+  .data-table td.center { text-align: center; }
+  .data-table td.right  { text-align: right; }
+
+  /* ── Avatar ── */
+  .etu-avatar {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg,#6366F1,#8B5CF6);
+    color: #fff; font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .etu-name  { display: flex; align-items: center; gap: 12px; }
+  .etu-label { font-weight: 600; color: #0F172A; font-size: 13.5px; }
+  .etu-alerte { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; padding: 2px 8px; background: #FEE2E2; color: #B91C1C; border-radius: 6px; font-size: 11px; font-weight: 600; }
+
+  /* ── Badges ── */
+  .badge-mono  { padding: 3px 10px; background: #F1F5F9; border-radius: 6px; font-size: 12px; font-family: monospace; color: #475569; font-weight: 600; }
+  .badge-level { padding: 3px 10px; background: #EEF2FF; border-radius: 6px; font-size: 12px; color: #3B5BDB; font-weight: 600; }
+  .badge-status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 99px; font-size: 11.5px; font-weight: 600; }
+  .badge-status .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .badge-paye    { background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+  .badge-paye    .dot { background: #10B981; }
+  .badge-partiel { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+  .badge-partiel .dot { background: #F59E0B; }
+  .badge-nonpaye { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+  .badge-nonpaye .dot { background: #EF4444; }
+
+  /* ── Montants ── */
+  .amount-main { font-weight: 700; color: #0F172A; font-size: 13.5px; }
+  .amount-sub  { font-size: 11.5px; color: #94A3B8; margin-top: 2px; }
+
+  /* ── Actions ── */
+  .action-row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-recu {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; background: #F1F5F9; color: #475569;
+    border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none;
+    transition: background .15s;
+  }
+  .btn-recu:hover { background: #E2E8F0; }
+  .btn-pay {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; background: linear-gradient(135deg,#3B5BDB,#2d4ac7);
+    color: #fff; border-radius: 8px; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(59,91,219,.25);
+    transition: transform .15s;
+  }
+  .btn-pay:hover { transform: translateY(-1px); }
+  .btn-del {
+    width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+    background: transparent; color: #94A3B8; border: none; border-radius: 8px;
+    cursor: pointer; transition: background .15s, color .15s;
+  }
+  .btn-del:hover { background: #FEE2E2; color: #E11D48; }
+
+  /* ── Empty state ── */
+  .empty-td { padding: 64px 24px; text-align: center; }
+  .empty-circle { width: 72px; height: 72px; background: linear-gradient(135deg,#EEF2FF,#E0E7FF); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .empty-title { font-size: 16px; font-weight: 700; color: #475569; margin-bottom: 6px; }
+  .empty-sub   { font-size: 13px; color: #94A3B8; margin-bottom: 20px; }
+  .btn-empty {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; background: #3B5BDB; color: #fff; border: none;
+    border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  }
+
+  /* ── Modal ── */
+  .modal-wrap  { display: none; position: fixed; inset: 0; z-index: 50; }
+  .modal-wrap.open { display: block; }
+  .modal-bg    { position: absolute; inset: 0; background: rgba(15,28,63,.5); backdrop-filter: blur(3px); }
+  .modal-center { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 16px; position: relative; }
+  .modal-box   { background: #fff; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.18); width: 100%; max-width: 480px; animation: modalIn .2s ease; }
+  @keyframes modalIn { from { opacity:0; transform:scale(.96) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+  .modal-head  { padding: 20px 24px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; justify-content: space-between; }
+  .modal-head-left { display: flex; align-items: center; gap: 12px; }
+  .modal-icon  { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .modal-title { font-size: 16px; font-weight: 700; color: #0F172A; }
+  .modal-sub   { font-size: 13px; color: #94A3B8; margin-top: 2px; }
+  .modal-close { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: #94A3B8; border-radius: 8px; cursor: pointer; transition: background .15s, color .15s; }
+  .modal-close:hover { background: #F1F5F9; color: #475569; }
+  .modal-body  { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .field-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; padding: 10px 14px; border: 1.5px solid #E2E8F0;
+    border-radius: 10px; font-size: 13.5px; background: #F8FAFC;
+    color: #0F172A; outline: none; transition: border-color .15s, box-shadow .15s;
+    box-sizing: border-box;
+  }
+  .field input:focus, .field select:focus { border-color: #3B5BDB; box-shadow: 0 0 0 3px rgba(59,91,219,.1); }
+  .modal-footer { display: flex; gap: 12px; padding-top: 4px; }
+  .btn-cancel {
+    flex: 1; padding: 11px; border: 1.5px solid #E2E8F0; background: #fff;
+    color: #475569; border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer;
+    transition: background .15s;
+  }
+  .btn-cancel:hover { background: #F8FAFC; }
+  .btn-submit {
+    flex: 1; padding: 11px; background: linear-gradient(135deg,#3B5BDB,#2d4ac7);
+    color: #fff; border: none; border-radius: 10px; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; box-shadow: 0 4px 14px rgba(59,91,219,.3); transition: transform .15s;
+  }
+  .btn-submit:hover { transform: translateY(-1px); }
+  .btn-submit.green { background: linear-gradient(135deg,#10B981,#059669); box-shadow: 0 4px 14px rgba(16,185,129,.3); }
+
+  /* ── Info boxes dans modal paiement ── */
+  .pay-info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pay-info-box { padding: 14px; border-radius: 10px; }
+  .pay-info-box.neutral  { background: #F8FAFC; border: 1px solid #E2E8F0; }
+  .pay-info-box.positive { background: #F0FDF9; border: 1px solid #A7F3D0; }
+  .pay-info-lbl { font-size: 11px; color: #94A3B8; margin-bottom: 4px; }
+  .pay-info-box.positive .pay-info-lbl { color: #6EE7B7; }
+  .pay-info-val { font-size: 16px; font-weight: 800; color: #0F172A; }
+  .pay-info-box.positive .pay-info-val { color: #059669; }
+
+  @media (max-width: 768px) {
+    .stat-grid { grid-template-columns: repeat(2,1fr); }
+    .field-grid { grid-template-columns: 1fr; }
+    .filter-row { flex-direction: column; }
+  }
+</style>
+
+<!-- En-tête -->
+<div class="page-top">
+  <div>
+    <div class="page-eyebrow">Scolarité</div>
+    <h2 class="page-title">Étudiants</h2>
+  </div>
+  <button class="btn-add" onclick="document.getElementById('modal-add').classList.add('open')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+    Nouvel étudiant
+  </button>
+</div>
+
+<!-- Filtres -->
+<div class="filter-box">
+  <form method="get" class="filter-row">
+    <div class="filter-search">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input type="text" name="q" placeholder="Rechercher par nom ou matricule..." value="{{ search }}">
+    </div>
+    <select name="cycle">
+      <option value="all">Tous niveaux</option>
+      <option value="Licence 1" {% if filter_cycle == "Licence 1" %}selected{% endif %}>Licence 1</option>
+      <option value="Licence 2" {% if filter_cycle == "Licence 2" %}selected{% endif %}>Licence 2</option>
+      <option value="Licence 3" {% if filter_cycle == "Licence 3" %}selected{% endif %}>Licence 3</option>
+      <option value="Master" {% if filter_cycle == "Master" %}selected{% endif %}>Master</option>
+    </select>
+    <select name="statut">
+      <option value="all">Tous statuts</option>
+      <option value="paye"     {% if filter_statut == "paye"     %}selected{% endif %}>Payé</option>
+      <option value="partiel"  {% if filter_statut == "partiel"  %}selected{% endif %}>Partiel</option>
+      <option value="non_paye" {% if filter_statut == "non_paye" %}selected{% endif %}>Non payé</option>
+    </select>
+    <button type="submit" class="btn-filter">Filtrer</button>
+  </form>
+</div>
+
+<!-- Stats -->
+<div class="stat-grid">
+  <div class="scard dark">
+    <div class="scard-icon"><svg width="20" height="20" fill="none" stroke="rgba(255,255,255,.8)" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/></svg></div>
+    <div class="scard-val">{{ total|default:0 }}</div>
+    <div class="scard-label">Total étudiants</div>
+  </div>
+  <div class="scard green">
+    <div class="scard-icon"><svg width="20" height="20" fill="none" stroke="rgba(255,255,255,.9)" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    <div class="scard-val">{{ nb_payes|default:0 }}</div>
+    <div class="scard-label">Payés</div>
+  </div>
+  <div class="scard amber">
+    <div class="scard-icon"><svg width="20" height="20" fill="none" stroke="rgba(255,255,255,.9)" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    <div class="scard-val">{{ nb_partiels|default:0 }}</div>
+    <div class="scard-label">Partiels</div>
+  </div>
+  <div class="scard rose">
+    <div class="scard-icon"><svg width="20" height="20" fill="none" stroke="rgba(255,255,255,.9)" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+    <div class="scard-val">{{ nb_non_payes|default:0 }}</div>
+    <div class="scard-label">Non payés</div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="table-card">
+  <div class="table-card-head">
+    <h3>Liste des étudiants</h3>
+    <span>{{ etudiants|length }} étudiant(s)</span>
+  </div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Étudiant</th>
+          <th>Matricule</th>
+          <th>Filière</th>
+          <th class="center">Niveau</th>
+          <th class="right">Montant</th>
+          <th class="center">Statut</th>
+          <th class="center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in etudiants %}
+        <tr>
+          <td>
+            <div class="etu-name">
+              <div class="etu-avatar">{{ s.etudiant.nom|first|upper }}</div>
+              <div>
+                <div class="etu-label">{{ s.etudiant.nom }} {{ s.etudiant.prenom }}</div>
+                {% if s.en_alerte %}<div class="etu-alerte">⚠ Paiement en retard</div>{% endif %}
+              </div>
+            </div>
+          </td>
+          <td><span class="badge-mono">{{ s.etudiant.matricule }}</span></td>
+          <td style="font-weight:500;">{{ s.etudiant.get_parcours }}</td>
+          <td class="center"><span class="badge-level">{{ s.etudiant.cycle }}</span></td>
+          <td class="right">
+            <div class="amount-main">{{ s.montant_total|floatformat:0 }} FCFA</div>
+            <div class="amount-sub">Payé : {{ s.montant_paye|floatformat:0 }} FCFA</div>
+          </td>
+          <td class="center">
+            {% if s.statut == "paye" %}
+              <span class="badge-status badge-paye"><span class="dot"></span>Payé</span>
+            {% elif s.statut == "partiel" %}
+              <span class="badge-status badge-partiel"><span class="dot"></span>Partiel</span>
+            {% else %}
+              <span class="badge-status badge-nonpaye"><span class="dot"></span>Non payé</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="action-row">
+              <a href="{% url 'student_receipt' s.id %}" target="_blank" class="btn-recu">
+                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Reçu
+              </a>
+              <button class="btn-pay" onclick="openPayModal('{{ s.id }}','{{ s.etudiant.nom }} {{ s.etudiant.prenom }}','{{ s.montant_total|floatformat:0 }}','{{ s.montant_paye|floatformat:0 }}')">
+                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                Payer
+              </button>
+              <form method="post" action="{% url 'delete_etudiant' s.id %}" onsubmit="return confirm('Supprimer {{ s.etudiant.nom }} {{ s.etudiant.prenom }} ?')" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-del">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="empty-td">
+            <div class="empty-circle">
+              <svg width="36" height="36" fill="none" stroke="#6366F1" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/></svg>
+            </div>
+            <div class="empty-title">Aucun étudiant trouvé</div>
+            <div class="empty-sub">Ajoutez votre premier étudiant pour commencer</div>
+            <button class="btn-empty" onclick="document.getElementById('modal-add').classList.add('open')">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Ajouter un étudiant
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Ajouter -->
+<div id="modal-add" class="modal-wrap">
+  <div class="modal-bg" onclick="document.getElementById('modal-add').classList.remove('open')"></div>
+  <div class="modal-center">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-head-left">
+          <div class="modal-icon" style="background:#EEF2FF;">
+            <svg width="18" height="18" fill="none" stroke="#3B5BDB" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <div>
+            <div class="modal-title">Nouvel étudiant</div>
+            <div class="modal-sub">Ajouter un étudiant à la base</div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('modal-add').classList.remove('open')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form method="post" action="{% url 'add_etudiant' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="field">
+            <label>Étudiant</label>
+            <select name="etudiant_id" required>
+              <option value="">-- Sélectionner un étudiant --</option>
+              {% for e in etudiants_sans_dossier %}
+              <option value="{{ e.id }}">{{ e.nom }} {{ e.prenom }} — {{ e.matricule }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field-grid">
+            <div class="field"><label>Montant total (FCFA)</label><input type="number" name="montant_total" placeholder="500000" required></div>
+            <div class="field">
+              <label>Mode de paiement</label>
+              <select name="mode_paiement">
+                <option value="cash">Espèces</option>
+                <option value="mobile_money">Mobile Money</option>
+                <option value="virement">Virement bancaire</option>
+                <option value="cheque">Chèque</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="document.getElementById('modal-add').classList.remove('open')">Annuler</button>
+            <button type="submit" class="btn-submit">Enregistrer</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Payer -->
+<div id="modal-pay" class="modal-wrap">
+  <div class="modal-bg" onclick="document.getElementById('modal-pay').classList.remove('open')"></div>
+  <div class="modal-center">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-head-left">
+          <div class="modal-icon" style="background:#D1FAE5;">
+            <svg width="18" height="18" fill="none" stroke="#059669" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          </div>
+          <div>
+            <div class="modal-title">Enregistrer un paiement</div>
+            <div class="modal-sub" id="pay-name"></div>
+          </div>
+        </div>
+      </div>
+      <form method="post" action="{% url 'pay_etudiant' %}">
+        {% csrf_token %}
+        <input type="hidden" name="dossier_id" id="pay-id">
+        <div class="modal-body">
+          <div class="pay-info-row">
+            <div class="pay-info-box neutral"><div class="pay-info-lbl">Total à payer</div><div class="pay-info-val" id="pay-total"></div></div>
+            <div class="pay-info-box positive"><div class="pay-info-lbl">Déjà payé</div><div class="pay-info-val" id="pay-deja"></div></div>
+          </div>
+          <div class="field"><label>Montant à payer (FCFA)</label><input type="number" name="montant" placeholder="250000" required></div>
+          <div class="field">
+            <label>Mode de paiement</label>
+            <select name="mode_paiement">
+              <option value="cash">Espèces</option>
+              <option value="mobile_money">Mobile Money</option>
+              <option value="virement">Virement bancaire</option>
+              <option value="cheque">Chèque</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="document.getElementById('modal-pay').classList.remove('open')">Annuler</button>
+            <button type="submit" class="btn-submit green">Valider le paiement</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function openPayModal(id, name, total, deja) {
+  document.getElementById('pay-id').value = id;
+  document.getElementById('pay-name').textContent = name;
+  document.getElementById('pay-total').textContent = total + ' FCFA';
+  document.getElementById('pay-deja').textContent = deja + ' FCFA';
+  document.getElementById('modal-pay').classList.add('open');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('modal-add').classList.remove('open');
+    document.getElementById('modal-pay').classList.remove('open');
+  }
+});
+</script>
+{% endblock %}

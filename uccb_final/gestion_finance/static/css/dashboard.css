@@ -1,0 +1,450 @@
+/* ============================================================
+   DASHBOARD PAGE — CSS
+   Copier dans : ton_projet/static/css/dashboard.css
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  background: #F8FAFC;
+  color: #0F172A;
+  margin: 0;
+}
+
+.db-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ── Stats row ─────────────────────────────────────────────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow .2s, transform .2s;
+}
+
+/* Colored left accent */
+.stat-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 16px;
+  bottom: 16px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+}
+.stat-card.blue::before  { background: #6366F1; }
+.stat-card.green::before { background: #10B981; }
+.stat-card.rose::before  { background: #F43F5E; }
+
+/* Shimmer sweep on hover */
+.stat-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 120%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255,255,255,.45),
+    transparent);
+  transition: .8s;
+}
+.stat-card:hover::after { left: 120%; }
+.stat-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,.08);
+}
+
+.stat-icon {
+  width: 55px;
+  height: 55px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 18px;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #94A3B8;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.5px;
+  color: #0F172A;
+}
+.stat-value span {
+  font-size: 14px;
+  font-weight: 400;
+  color: #94A3B8;
+  margin-left: 4px;
+}
+
+/* ── Main grid ─────────────────────────────────────────────── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+.col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Section cards ─────────────────────────────────────────── */
+.section-card {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.section-head {
+  padding: 18px 24px;
+  border-bottom: 1px solid #F1F5F9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-head-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.head-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.head-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.head-sub {
+  font-size: 12px;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+
+.link-small {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6366F1;
+  text-decoration: none;
+  transition: opacity .15s;
+  white-space: nowrap;
+}
+.link-small:hover { opacity: .7; }
+
+/* ── Mini student stats ─────────────────────────────────────── */
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 20px 24px;
+}
+
+.mini-stat {
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.mini-val {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.mini-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+.mini-stat.total    { background: #F8FAFC; }
+.mini-stat.total    .mini-val { color: #334155; }
+.mini-stat.total    .mini-lbl { color: #94A3B8; }
+
+.mini-stat.payes    { background: #F0FDF9; }
+.mini-stat.payes    .mini-val { color: #059669; }
+.mini-stat.payes    .mini-lbl { color: #6EE7B7; }
+
+.mini-stat.partiels { background: #FFFBEB; }
+.mini-stat.partiels .mini-val { color: #D97706; }
+.mini-stat.partiels .mini-lbl { color: #FCD34D; }
+
+.mini-stat.nonpayes { background: #FFF1F2; }
+.mini-stat.nonpayes .mini-val { color: #E11D48; }
+.mini-stat.nonpayes .mini-lbl { color: #FDA4AF; }
+
+/* ── Progress bar ───────────────────────────────────────────── */
+.progress-wrap {
+  padding: 0 24px 20px;
+}
+
+.progress-track {
+  height: 5px;
+  background: #F1F5F9;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366F1, #818CF8);
+  border-radius: 99px;
+  transition: width .6s ease;
+}
+
+.progress-meta {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+/* ── Salary section ─────────────────────────────────────────── */
+.sal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 20px 24px;
+}
+
+.sal-item {
+  padding: 16px;
+  border-radius: 12px;
+}
+.sal-item.neutral  { background: #F8FAFC; }
+.sal-item.positive { background: #F0FDF9; }
+
+.sal-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 6px;
+}
+.sal-item.neutral  .sal-label { color: #94A3B8; }
+.sal-item.positive .sal-label { color: #6EE7B7; }
+
+.sal-value {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.3px;
+  line-height: 1;
+}
+.sal-item.neutral  .sal-value { color: #0F172A; }
+.sal-item.positive .sal-value { color: #059669; }
+
+.sal-currency {
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+/* ── Late payments table ────────────────────────────────────── */
+.retard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.retard-table thead {
+  background: #F8FAFC;
+}
+
+.retard-table thead th {
+  padding: 10px 20px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #94A3B8;
+  border-bottom: 1px solid #F1F5F9;
+}
+.retard-table thead th:last-child { text-align: right; }
+
+.retard-table tbody tr {
+  border-bottom: 1px solid #F8FAFC;
+  transition: background .15s;
+}
+.retard-table tbody tr:last-child { border-bottom: none; }
+.retard-table tbody tr:hover { background: #F8FAFC; }
+
+.retard-table td {
+  padding: 12px 20px;
+  color: #334155;
+}
+.retard-table td:first-child { font-weight: 600; color: #0F172A; }
+
+.retard-table td.matricule {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  color: #64748B;
+}
+
+.retard-table td.amount {
+  text-align: right;
+  font-weight: 700;
+  color: #E11D48;
+}
+
+/* ── Badge retard ───────────────────────────────────────────── */
+.badge-retard {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #FFF1F2;
+  color: #E11D48;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 99px;
+}
+
+/* ── Empty state ────────────────────────────────────────────── */
+.empty-state {
+  padding: 32px;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 48px;
+  height: 48px;
+  background: #F0FDF9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.empty-text {
+  font-size: 13px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+/* ── Transaction rows ───────────────────────────────────────── */
+.tx-row {
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #F8FAFC;
+  transition: background .15s;
+}
+.tx-row:last-child { border-bottom: none; }
+.tx-row:hover { background: #F8FAFC; }
+
+.tx-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.tx-dot.in  { background: #F0FDF9; color: #059669; }
+.tx-dot.out { background: #FFF1F2; color: #E11D48; }
+
+.tx-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tx-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tx-date {
+  font-size: 11px;
+  color: #94A3B8;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.tx-amount {
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.tx-amount.positive { color: #059669; }
+.tx-amount.negative { color: #E11D48; }
+
+.tx-amount-currency {
+  font-size: 10px;
+  font-weight: 500;
+  color: #94A3B8;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .main-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .stats-row  { grid-template-columns: 1fr; }
+  .mini-grid  { grid-template-columns: repeat(2, 1fr); }
+  .sal-grid   { grid-template-columns: 1fr; }
+  .db-wrap    { padding: 1rem; }
+}

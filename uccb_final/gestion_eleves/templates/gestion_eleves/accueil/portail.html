@@ -2,6 +2,7 @@
 {% load static %}
 <html lang="fr">
 <head>
+<<<<<<< HEAD
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UCCB — Système de Gestion Académique</title>
@@ -174,21 +175,242 @@ footer strong { color: var(--navy); font-weight: 600; }
   .hero   { padding: 52px 20px 40px; }
 }
 </style>
+=======
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCCB — Système de Gestion Académique</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #ffffff;
+            --navy: #1e2d40;
+            --text: #1e2d40;
+            --muted: #6b7280;
+            --border: rgba(30, 45, 64, .1);
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            display: flex;
+            align-items: center;
+            padding: 0 56px;
+            height: 64px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-logo img {
+            height: 38px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .nav-brand-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--navy);
+            letter-spacing: -.01em;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            text-align: center;
+            padding: 80px 24px 60px;
+        }
+
+        .hero-h1 {
+            font-family: 'Caveat', cursive;
+            font-size: clamp(48px, 6vw, 74px);
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .hero-sub {
+            font-family: 'Caveat', cursive;
+            font-size: clamp(28px, 3.5vw, 44px);
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 22px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-sub::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #3b9edb;
+            border-radius: 2px;
+        }
+
+        .hero-desc {
+            font-size: 16px;
+            color: var(--muted);
+            max-width: 400px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        /* ── BOUTONS ── */
+        .hero-btns {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            background: var(--navy);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 13px 28px;
+            border-radius: 7px;
+            text-decoration: none;
+            transition: background .18s, transform .15s;
+        }
+
+        .btn-primary:hover {
+            background: #162032;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            background: transparent;
+            color: var(--navy);
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 13px 28px;
+            border-radius: 7px;
+            border: 1.5px solid rgba(30, 45, 64, .25);
+            text-decoration: none;
+            transition: border-color .18s, background .18s;
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(30, 45, 64, .5);
+            background: rgba(30, 45, 64, .04);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            padding: 14px 56px;
+            text-align: center;
+            font-size: 11.5px;
+            color: var(--muted);
+        }
+
+        footer strong {
+            color: var(--navy);
+            font-weight: 600;
+        }
+
+        /* ── ANIMATION ── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .navbar {
+            animation: fadeUp .4s ease both;
+        }
+
+        .hero {
+            animation: fadeUp .45s .08s ease both;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .hero {
+                padding: 52px 20px 40px;
+            }
+        }
+    </style>
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 </head>
 <body>
 
 <!-- NAVBAR -->
 <nav class="navbar">
+<<<<<<< HEAD
   <div class="nav-brand">
     <div class="nav-logo">
       <img src="{% static 'gestion_eleves/img/logo_uccb.jpg' %}" alt="UCCB">
     </div>
     <span class="nav-brand-text">UCCB</span>
   </div>
+=======
+    <div class="nav-brand">
+        <div class="nav-logo">
+            <img src="{% static 'gestion_eleves/img/logo_uccb.jpg' %}" alt="UCCB">
+        </div>
+        <span class="nav-brand-text">UCCB</span>
+    </div>
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 </nav>
 
 <!-- HERO -->
 <section class="hero">
+<<<<<<< HEAD
   <h1 class="hero-h1">
     Toute la gestion académique<br>
     sur une plateforme.
@@ -208,12 +430,38 @@ footer strong { color: var(--navy); font-weight: 600; }
     <a href="{% url 'login_faculte' %}" class="btn-secondary">Espace Faculté</a>
     <a href="{% url 'login_etudiant' %}" class="btn-secondary">Espace Étudiant</a>
   </div>
+=======
+    <h1 class="hero-h1">
+        Toute la gestion académique<br>
+        sur une plateforme.
+    </h1>
+
+    <div style="margin-bottom: 20px;">
+        <span class="hero-sub">Simple, efficace et académique !</span>
+    </div>
+
+    <p class="hero-desc">
+        Université Catholique du Congo-Brazzaville.<br>
+        Choisissez votre espace pour continuer.
+    </p>
+
+    <div class="hero-btns">
+        <a href="{% url 'login_secretaire' %}" class="btn-primary">Espace Secrétariat</a>
+        <a href="{% url 'login_faculte' %}" class="btn-secondary">Espace Faculté</a>
+        <a href="{% url 'login_etudiant' %}" class="btn-secondary">Espace Étudiant</a>
+        <a href="{% url 'login_finance' %}" class="btn-secondary">Espace Finance</a></div>
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 </section>
 
 <!-- FOOTER -->
 <footer>
+<<<<<<< HEAD
   <strong>Université Catholique du Congo-Brazzaville</strong> &mdash;
   Arrêté N°9554/MESRSIT/CAB du 21/09/2020
+=======
+    <strong>Université Catholique du Congo-Brazzaville</strong> &mdash;
+    Arrêté N°9554/MESRSIT/CAB du 21/09/2020
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 </footer>
 
 </body>

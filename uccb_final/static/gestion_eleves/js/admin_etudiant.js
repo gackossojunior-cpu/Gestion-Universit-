@@ -2,7 +2,11 @@
  * admin_etudiant.js — Version AJAX (sans rechargement de page)
  *
  * Quand on change la Faculté :
+<<<<<<< HEAD
  *   → appel AJAX vers /api/portails/ et /api/filieres/
+=======
+ *   → appel AJAX vers /gestion_finance/portails/ et /gestion_finance/filieres/
+>>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
  *   → mise à jour des <select> sans perdre les données saisies
  *
  * Quand on change le Semestre :

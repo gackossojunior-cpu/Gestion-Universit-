@@ -1,0 +1,565 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestion Finance UCCB{% endblock %}</title>
+
+    <style>
+        /* ── Reset ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
+
+        /* ── Variables ── */
+        :root {
+            --navy:         #0F1C3F;
+            --navy-hover:   #1a2f5e;
+            --indigo:       #3B5BDB;
+            --indigo-light: #EEF2FF;
+            --amber:        #F59E0B;
+            --red:          #EF4444;
+            --surface:      #F8FAFC;
+            --card:         #FFFFFF;
+            --border:       #E2E8F0;
+            --text:         #0F172A;
+            --text-muted:   #64748B;
+            --text-soft:    #94A3B8;
+            --radius-sm:    6px;
+            --radius-md:    10px;
+            --radius-lg:    16px;
+            --shadow-xs:    0 1px 3px rgba(0,0,0,.07);
+            --shadow-md:    0 4px 20px rgba(0,0,0,.10);
+            --dur:          180ms;
+            --ease:         cubic-bezier(.4,0,.2,1);
+        }
+
+        /* ── Base ── */
+        body {
+            font-family: "Inter", ui-sans-serif, system-ui, -apple-system,
+                         "Segoe UI", sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            background: var(--surface);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Layout principal ── */
+        .app-wrapper {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ════════════════════════════════
+           SIDEBAR
+        ════════════════════════════════ */
+        .sidebar {
+            width: 250px;
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        /* Scrollbar sidebar */
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 99px; }
+
+        /* Logo */
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 20px 18px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .sidebar-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--amber), #fb923c);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(245,158,11,.35);
+        }
+
+        .sidebar-logo-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -.3px;
+        }
+
+        .sidebar-logo-sub {
+            font-size: 11px;
+            color: rgba(255,255,255,.4);
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .sidebar-nav {
+            flex: 1;
+            padding: 14px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 500;
+            color: rgba(255,255,255,.5);
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: background var(--dur) var(--ease),
+                        color var(--dur) var(--ease),
+                        border-color var(--dur) var(--ease);
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255,255,255,.07);
+            color: rgba(255,255,255,.88);
+        }
+
+        .sidebar-link.active {
+            background: rgba(245,158,11,.13);
+            color: var(--amber);
+            border-left-color: var(--amber);
+            font-weight: 600;
+        }
+
+        /* User zone */
+        .sidebar-user {
+            padding: 16px 16px 18px;
+            border-top: 1px solid rgba(255,255,255,.08);
+            background: rgba(0,0,0,.15);
+        }
+
+        .sidebar-user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--indigo), #6366f1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .sidebar-username {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,.85);
+        }
+
+        .sidebar-role {
+            font-size: 11px;
+            color: rgba(255,255,255,.35);
+        }
+
+        .sidebar-logout {
+            margin-top: 12px;
+        }
+
+        .sidebar-logout button {
+            width: 100%;
+            padding: 8px 14px;
+            background: rgba(239,68,68,.12);
+            color: #fca5a5;
+            border: 1px solid rgba(239,68,68,.22);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+        }
+
+        .sidebar-logout button:hover {
+            background: rgba(239,68,68,.28);
+            color: #fee2e2;
+        }
+
+        /* ════════════════════════════════
+           CONTENU PRINCIPAL
+        ════════════════════════════════ */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 32px;
+            background: var(--surface);
+        }
+
+        .main-content::-webkit-scrollbar { width: 5px; }
+        .main-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+        /* ════════════════════════════════
+           MESSAGES
+        ════════════════════════════════ */
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            border: 1px solid #6ee7b7;
+            background: #d1fae5;
+            color: #065f46;
+            box-shadow: var(--shadow-xs);
+        }
+
+        /* ════════════════════════════════
+           CARDS
+        ════════════════════════════════ */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-xs);
+            transition: transform var(--dur) var(--ease),
+                        box-shadow var(--dur) var(--ease);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ════════════════════════════════
+           TABLES
+        ════════════════════════════════ */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+
+        thead th {
+            padding: 11px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            color: var(--indigo);
+            background: var(--indigo-light);
+            text-align: left;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background var(--dur) var(--ease);
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: var(--indigo-light); }
+
+        tbody td {
+            padding: 12px 16px;
+            color: var(--text);
+        }
+
+        /* ════════════════════════════════
+           BOUTONS
+        ════════════════════════════════ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: background var(--dur) var(--ease),
+                        transform var(--dur) var(--ease),
+                        box-shadow var(--dur) var(--ease);
+        }
+
+        .btn-primary {
+            background: var(--indigo);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(59,91,219,.28);
+        }
+
+        .btn-primary:hover {
+            background: #2d4ac7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(59,91,219,.35);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--indigo-light);
+            border-color: #c7d2fe;
+            color: var(--indigo);
+        }
+
+        .btn-danger {
+            background: rgba(239,68,68,.1);
+            color: var(--red);
+            border: 1.5px solid rgba(239,68,68,.2);
+        }
+
+        .btn-danger:hover {
+            background: var(--red);
+            color: #fff;
+        }
+
+        /* ════════════════════════════════
+           FORMULAIRES
+        ════════════════════════════════ */
+        input, select, textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            background: #fff;
+            color: var(--text);
+            outline: none;
+            transition: border-color var(--dur) var(--ease),
+                        box-shadow var(--dur) var(--ease);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--indigo);
+            box-shadow: 0 0 0 3px rgba(59,91,219,.12);
+        }
+
+        input::placeholder, textarea::placeholder { color: var(--text-soft); }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 4px;
+        }
+
+        /* ════════════════════════════════
+           BADGES
+        ════════════════════════════════ */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 99px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+        .badge-green  { background: #d1fae5; color: #065f46; }
+        .badge-red    { background: #fee2e2; color: #991b1b; }
+        .badge-amber  { background: #fef3c7; color: #92400e; }
+        .badge-indigo { background: var(--indigo-light); color: var(--indigo); }
+
+        /* ════════════════════════════════
+           PAGE HEADER
+        ════════════════════════════════ */
+        .page-header {
+            margin-bottom: 24px;
+        }
+        .page-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -.4px;
+        }
+        .page-header p {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ════════════════════════════════
+           STAT CARDS (Dashboard)
+        ════════════════════════════════ */
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .stat-card .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-top: 4px;
+        }
+
+        /* ════════════════════════════════
+           MODAL
+        ════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,28,63,.55);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal-box {
+            background: var(--card);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.2);
+            animation: modalIn .2s var(--ease);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(.96) translateY(8px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* ════════════════════════════════
+           RESPONSIVE
+        ════════════════════════════════ */
+        @media (max-width: 768px) {
+            .sidebar { width: 220px; }
+            .main-content { padding: 16px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<div class="app-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">💰</div>
+            <div>
+                <div class="sidebar-logo-title">UCCB</div>
+                <div class="sidebar-logo-sub">Gestion Finance</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard' %}" class="sidebar-link">
+                📊 Tableau de bord
+            </a>
+            <a href="{% url 'etudiants' %}" class="sidebar-link">
+                🎓 Étudiants
+            </a>
+            <a href="{% url 'enseignants' %}" class="sidebar-link">
+                👨‍🏫 Enseignants
+            </a>
+            <a href="{% url 'personnel' %}" class="sidebar-link">
+                👥 Personnel
+            </a>
+            <a href="{% url 'transactions' %}" class="sidebar-link">
+                💳 Transactions
+            </a>
+            <a href="{% url 'transports' %}" class="sidebar-link">
+                🚌 Transports
+            </a>
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="sidebar-user-info">
+                <div class="sidebar-avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+                <div>
+                    <div class="sidebar-username">{{ request.user.username }}</div>
+                    <div class="sidebar-role">Administrateur</div>
+                </div>
+            </div>
+            <div class="sidebar-logout">
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- Contenu principal -->
+    <div class="main-wrapper">
+        <main class="main-content">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+
+        </main>
+    </div>
+
+</div>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>
