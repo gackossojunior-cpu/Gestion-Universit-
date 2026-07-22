@@ -142,9 +142,14 @@ def calculer_matrice(fac_id, sem_id, etudiant_id=None, save_results=False, porta
             'faculte', 'portail', 'filiere', 'annee_academique'
         )
     elif fac_id:
-        etudiants = Etudiant.objects.filter(
+        qs = Etudiant.objects.filter(
             faculte__id=fac_id, semestre=sem_id, statut='actif'
         ).select_related('faculte', 'portail', 'filiere', 'annee_academique')
+        if portail_id:
+            qs = qs.filter(portail_id=portail_id)
+        if filiere_id:
+            qs = qs.filter(filiere_id=filiere_id)
+        etudiants = list(qs)
     else:
         return [], []
 
