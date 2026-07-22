@@ -83,13 +83,10 @@ def sec_liste_etudiants(request):
     })
 
 
-
-
 # ── CHANGER STATUT ÉTUDIANT ───────────────────────────────────
 @secretaire_required
 def sec_changer_statut(request, etudiant_id):
     """Le secrétaire peut changer le statut d'un étudiant directement."""
-    from django.http import JsonResponse
     etu = get_object_or_404(Etudiant, id=etudiant_id)
 
     if request.method == 'POST':
@@ -109,6 +106,7 @@ def sec_changer_statut(request, etudiant_id):
 
     return redirect('sec_liste_etudiants')
 
+
 # ── ATTESTATION ───────────────────────────────────────────────
 @secretaire_required
 def sec_attestation(request, etudiant_id):
@@ -118,19 +116,16 @@ def sec_attestation(request, etudiant_id):
     )
     params = ParametresUCCB.objects.first()
 
-    # Semestres disponibles pour l'attestation (tous les semestres avec notes)
     from .models import Note as NoteModel
     semestres_disponibles = list(
         NoteModel.objects.filter(etudiant=etu)
         .values_list('semestre', flat=True)
         .distinct().order_by('semestre')
     )
-    # Semestre demandé (par défaut le semestre actuel)
     sem_demande = request.GET.get('semestre', etu.semestre)
     if sem_demande not in semestres_disponibles and semestres_disponibles:
         sem_demande = etu.semestre
 
-    # Déterminer le parcours pour le semestre affiché
     if sem_demande in ['S1', 'S2']:
         parcours_sem = etu.portail.nom if etu.portail else etu.get_parcours()
     else:
@@ -159,7 +154,6 @@ def sec_releve(request, etudiant_id):
     )
     params = ParametresUCCB.objects.first()
 
-    # Semestres pour lesquels cet étudiant a des notes enregistrées
     from .models import Note
     semestres_avec_notes = list(
         Note.objects.filter(etudiant=etu)
@@ -167,25 +161,18 @@ def sec_releve(request, etudiant_id):
         .distinct()
         .order_by('semestre')
     )
-<<<<<<< HEAD
-=======
-    # Toujours inclure au minimum le semestre actuel
     if etu.semestre not in semestres_avec_notes:
         semestres_avec_notes.append(etu.semestre)
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 
-    # Semestre demandé (par défaut : semestre actuel)
     sem_demande = request.GET.get('semestre', etu.semestre)
     if sem_demande not in semestres_avec_notes and semestres_avec_notes:
-        sem_demande = semestres_avec_notes[-1]  # dernier semestre avec notes
+        sem_demande = semestres_avec_notes[-1]
 
-    # Parcours pour le semestre affiché — retrouver depuis les notes si l'étudiant a changé de sem
     if sem_demande in ['S1', 'S2']:
         if etu.portail:
             parcours_sem = etu.portail.nom
         else:
-            # Étudiant passé en S3+ : retrouver son portail via les UE de ses notes
-            from .models import Note as NoteHist, UniteEnseignement
+            from .models import Note as NoteHist
             note_hist = NoteHist.objects.filter(
                 etudiant=etu, semestre=sem_demande
             ).select_related('matiere__ue__portail').first()
@@ -232,7 +219,6 @@ def sec_releve(request, etudiant_id):
 # ── MATRICE A3 ────────────────────────────────────────────────
 @secretaire_required
 def sec_matrice_a3(request):
-<<<<<<< HEAD
     from .models import Portail, Filiere as FiliereModel
     facultes     = Faculte.objects.all()
     fac_id       = _int(request.GET.get('faculte'))
@@ -241,17 +227,11 @@ def sec_matrice_a3(request):
     filiere_id   = _int(request.GET.get('filiere'))
     portails_dispo = list(Portail.objects.filter(faculte_id=fac_id)) if fac_id else []
     filieres_dispo = list(FiliereModel.objects.filter(portail__faculte_id=fac_id)) if fac_id else []
-=======
-    facultes = Faculte.objects.all()
-    fac_id   = _int(request.GET.get('faculte'))
-    sem_id   = request.GET.get('semestre', '')
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 
     if not fac_id or not sem_id:
         return render(request, 'gestion_eleves/secretaire/matrice_a3_filtre.html', {
             'facultes': facultes, 'fac_id': fac_id, 'sem_id': sem_id,
             'semestres': SEMESTRES_LIST,
-<<<<<<< HEAD
             'portails_dispo': portails_dispo, 'filieres_dispo': filieres_dispo,
             'portail_id': portail_id, 'filiere_id': filiere_id,
         })
@@ -261,57 +241,30 @@ def sec_matrice_a3(request):
         fac_id, sem_id, save_results=True,
         portail_id=portail_id, filiere_id=filiere_id
     )
-=======
-        })
-
-    faculte = get_object_or_404(Faculte, id=fac_id)
-    struct, unites = calculer_matrice(fac_id, sem_id, save_results=True)
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 
     if not struct:
         messages.warning(request, "Aucun étudiant ou UE trouvé.")
         return render(request, 'gestion_eleves/secretaire/matrice_a3_filtre.html', {
             'facultes': facultes, 'fac_id': fac_id, 'sem_id': sem_id,
             'semestres': SEMESTRES_LIST,
-<<<<<<< HEAD
             'portails_dispo': portails_dispo, 'filieres_dispo': filieres_dispo,
             'portail_id': portail_id, 'filiere_id': filiere_id,
-=======
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
         })
 
     params = ParametresUCCB.objects.first()
     titre_sign, nom_sign = faculte.signataire_pv()
-<<<<<<< HEAD
     context = {
         'faculte': faculte, 'structure': struct, 'unites': unites,
         'sem_id': sem_id, 'date': datetime.now().strftime('%d/%m/%Y'),
         'parametres': params, 'titre_sign': titre_sign, 'nom_sign': nom_sign,
     }
     html = get_template('gestion_eleves/documents/matrice_a3.html').render(context)
-=======
-    toutes_matieres = [
-        {'ue': ue, 'mat': mat}
-        for ue in unites for mat in ue.matieres.all()
-    ]
-
-    context = {
-        'faculte': faculte, 'structure': struct, 'unites': unites,
-        'toutes_matieres': toutes_matieres, 'sem_id': sem_id,
-        'date': datetime.now().strftime('%d/%m/%Y'),
-        'parametres': params, 'titre_sign': titre_sign, 'nom_sign': nom_sign,
-    }
-    html     = get_template('gestion_eleves/documents/matrice_a3.html').render(context)
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="Matrice_{faculte.code}_{sem_id}.pdf"'
     pisa.CreatePDF(html, dest=response)
     return response
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 # ── PROMOTION ─────────────────────────────────────────────────
 @faculte_required
 def sec_promotion(request):
@@ -418,11 +371,7 @@ def sec_orientation_s3(request):
                         etu.save()
                         n += 1
                 messages.success(request, f"{n} étudiant(s) basculé(s) en S3.")
-<<<<<<< HEAD
-                return redirect('fac_dashboard')
-=======
                 return redirect('sec_dashboard')
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
             except Exception as e:
                 messages.error(request, f"Erreur : {e}")
 
@@ -459,14 +408,12 @@ def api_ues(request):
             semestre=sem, filiere__portail__faculte_id=fac_id
         ).values('id', 'nom', 'code_ue')
     return JsonResponse({'ues': list(ues)})
-<<<<<<< HEAD
+
 
 # ── GESTION ÉTUDIANTS ────────────────────────────────────────
 @secretaire_required
 def sec_ajouter_etudiant(request):
     """Formulaire d'ajout d'étudiant depuis le secrétariat."""
-    from .models import Faculte, Portail, Filiere, AnneeAcademique
-    
     facultes  = Faculte.objects.all().order_by('nom')
     portails  = Portail.objects.all().select_related('faculte').order_by('nom')
     filieres  = Filiere.objects.all().select_related('portail').order_by('nom')
@@ -521,7 +468,6 @@ def sec_ajouter_etudiant(request):
 @secretaire_required
 def sec_annees_academiques(request):
     """Gestion des années académiques."""
-    from .models import AnneeAcademique
     annees = AnneeAcademique.objects.all().order_by('-nom')
 
     if request.method == 'POST':
@@ -548,10 +494,9 @@ def sec_annees_academiques(request):
     })
 
 
-@secretaire_required  
+@secretaire_required
 def sec_facultes(request):
     """Gestion des facultés depuis le secrétariat."""
-    from .models import Faculte
     facultes = Faculte.objects.all().order_by('nom')
 
     if request.method == 'POST':
@@ -567,5 +512,3 @@ def sec_facultes(request):
     return render(request, 'gestion_eleves/secretaire/facultes.html', {
         'facultes': facultes,
     })
-=======
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff

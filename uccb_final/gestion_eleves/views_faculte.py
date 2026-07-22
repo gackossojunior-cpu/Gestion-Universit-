@@ -82,7 +82,6 @@ def fac_liste_classe(request):
 # ── SAISIE NOTES ──────────────────────────────────────────────
 @faculte_required
 def fac_saisie_notes(request):
-<<<<<<< HEAD
     fac_id     = _int(request.GET.get('faculte'))
     sem        = request.GET.get('semestre', '')
     ue_id      = _int(request.GET.get('ue'))
@@ -120,26 +119,6 @@ def fac_saisie_notes(request):
         elif sem not in ['S1', 'S2'] and filiere_id:
             qs_etu = qs_etu.filter(filiere_id=filiere_id)
         etudiants = list(qs_etu.order_by('nom', 'prenom'))
-=======
-    fac_id = _int(request.GET.get('faculte'))
-    sem    = request.GET.get('semestre', '')
-    ue_id  = _int(request.GET.get('ue'))
-    etudiants, matieres, unites, notes_dict = [], [], [], {}
-
-    if fac_id and sem:
-        if sem in ['S1', 'S2']:
-            unites = list(UniteEnseignement.objects.filter(
-                semestre=sem, portail__faculte_id=fac_id).order_by('code_ue'))
-        else:
-            unites = list(UniteEnseignement.objects.filter(
-                semestre=sem, filiere__portail__faculte_id=fac_id).order_by('code_ue'))
-
-    if fac_id and sem and ue_id:
-        etudiants = list(
-            Etudiant.objects.filter(faculte_id=fac_id, semestre=sem)
-            .select_related('portail', 'filiere').order_by('nom', 'prenom')
-        )
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
         matieres = list(Matiere.objects.filter(ue_id=ue_id).order_by('nom'))
         # Précharger toutes les notes existantes en une seule requête
         for n in Note.objects.filter(etudiant__in=etudiants, matiere__in=matieres, semestre=sem):
@@ -223,7 +202,6 @@ def fac_saisie_notes(request):
         return redirect(f"{request.path}?faculte={fac_id}&semestre={sem}&ue={ue_id}")
 
     return render(request, 'gestion_eleves/faculte/saisie_notes.html', {
-<<<<<<< HEAD
         'facultes': Faculte.objects.all(),
         'unites': unites,
         'etudiants': etudiants,
@@ -237,11 +215,6 @@ def fac_saisie_notes(request):
         'filieres_dispo': list(filieres_dispo),
         'portail_id': portail_id,
         'filiere_id': filiere_id,
-=======
-        'facultes': Faculte.objects.all(), 'unites': unites,
-        'etudiants': etudiants, 'matieres': matieres, 'notes_dict': notes_dict,
-        'fac_id': fac_id, 'sem': sem, 'ue_id': ue_id, 'semestres': SEMESTRES_LIST,
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
     })
 
 
@@ -311,14 +284,10 @@ def fac_deliberation(request):
     structure, unites = [], []
 
     if fac_id and sem:
-<<<<<<< HEAD
         portail_id = _int(request.GET.get('portail'))
         filiere_id = _int(request.GET.get('filiere'))
         structure, unites = calculer_matrice(fac_id, sem, save_results=save,
                                           portail_id=portail_id, filiere_id=filiere_id)
-=======
-        structure, unites = calculer_matrice(fac_id, sem, save_results=save)
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
         if save and structure:
             messages.success(request, f"✅ Résultats de {sem} calculés et archivés.")
         elif save:
@@ -334,14 +303,12 @@ def fac_deliberation(request):
 @faculte_required
 def fac_export_excel(request):
     """Export Excel désactivé — utiliser la Matrice A3."""
-    from django.contrib import messages
     messages.info(request, "L'export Excel a été retiré. Utilisez la Matrice A3.")
     return redirect('fac_deliberation')
 
 
 @faculte_required
 def fac_matrice_a3(request):
-<<<<<<< HEAD
     from .models import Portail, Filiere as FiliereModel
     facultes     = Faculte.objects.all()
     fac_id       = _int(request.GET.get('faculte'))
@@ -350,17 +317,11 @@ def fac_matrice_a3(request):
     filiere_id   = _int(request.GET.get('filiere'))
     portails_dispo = list(Portail.objects.filter(faculte_id=fac_id)) if fac_id else []
     filieres_dispo = list(FiliereModel.objects.filter(portail__faculte_id=fac_id)) if fac_id else []
-=======
-    facultes = Faculte.objects.all()
-    fac_id   = _int(request.GET.get('faculte'))
-    sem_id   = request.GET.get('semestre', '')
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 
     if not fac_id or not sem_id:
         return render(request, 'gestion_eleves/faculte/matrice_a3_filtre.html', {
             'facultes': facultes, 'fac_id': fac_id, 'sem_id': sem_id,
             'semestres': SEMESTRES_LIST,
-<<<<<<< HEAD
             'portails_dispo': portails_dispo, 'filieres_dispo': filieres_dispo,
             'portail_id': portail_id, 'filiere_id': filiere_id,
         })
@@ -370,23 +331,14 @@ def fac_matrice_a3(request):
         fac_id, sem_id, save_results=True,
         portail_id=portail_id, filiere_id=filiere_id
     )
-=======
-        })
-
-    faculte = get_object_or_404(Faculte, id=fac_id)
-    struct, unites = calculer_matrice(fac_id, sem_id, save_results=True)
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 
     if not struct:
         messages.warning(request, "Aucun étudiant ou UE trouvé.")
         return render(request, 'gestion_eleves/faculte/matrice_a3_filtre.html', {
             'facultes': facultes, 'fac_id': fac_id, 'sem_id': sem_id,
             'semestres': SEMESTRES_LIST,
-<<<<<<< HEAD
             'portails_dispo': portails_dispo, 'filieres_dispo': filieres_dispo,
             'portail_id': portail_id, 'filiere_id': filiere_id,
-=======
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
         })
 
     params = ParametresUCCB.objects.first()
@@ -396,24 +348,13 @@ def fac_matrice_a3(request):
         'sem_id': sem_id, 'date': datetime.now().strftime('%d/%m/%Y'),
         'parametres': params, 'titre_sign': titre_sign, 'nom_sign': nom_sign,
     }
-<<<<<<< HEAD
     html = get_template('gestion_eleves/documents/matrice_a3.html').render(context)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="MatriceA3_{faculte.code}_{sem_id}.pdf"'
     pisa.CreatePDF(html, dest=response)
     return response
 
-=======
-    html     = get_template('gestion_eleves/documents/matrice_a3.html').render(context)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = (
-        f'inline; filename="MatriceA3_{faculte.code}_{sem_id}.pdf"'
-    )
-    pisa.CreatePDF(html, dest=response)
-    return response
 
-
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
 # ── VUE QR CODE (publique) ────────────────────────────────────
 def vue_qr_etudiant(request, etudiant_id):
     etu = get_object_or_404(

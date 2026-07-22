@@ -177,11 +177,10 @@ def reset_mdp_faculte(request):
             messages.error(request, "Identifiant non trouvé.")
 
     return render(request, 'gestion_eleves/faculte/reset_mdp.html')
-<<<<<<< HEAD
+
 
 
 def redirect_to_faculte(request, **kwargs):
     """Redirige les anciens liens /enseignant/* vers l'Espace Faculté."""
     return redirect('login_faculte')
-=======
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
+

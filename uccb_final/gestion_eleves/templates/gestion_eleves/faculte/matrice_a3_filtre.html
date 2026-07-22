@@ -9,29 +9,29 @@
     <form method="GET">
       <div class="mb-3">
         <label class="fl">Faculté</label>
-<<<<<<< HEAD
+
         <select name="faculte" class="form-select" required onchange="this.form.submit()">
-=======
+
         <select name="faculte" class="form-select" required>
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
+
           <option value="">— Sélectionner —</option>
           {% for f in facultes %}<option value="{{ f.id }}" {% if f.id == fac_id %}selected{% endif %}>{{ f.nom }}</option>{% endfor %}
         </select>
       </div>
-<<<<<<< HEAD
+
       <div class="mb-3">
         <label class="fl">Semestre</label>
         <select name="semestre" class="form-select" required onchange="this.form.submit()">
-=======
+
       <div class="mb-4">
         <label class="fl">Semestre</label>
         <select name="semestre" class="form-select" required>
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
+
           <option value="">— Semestre —</option>
           {% for s in semestres %}<option value="{{ s }}" {% if s == sem_id %}selected{% endif %}>Semestre {{ s|slice:"1:" }}</option>{% endfor %}
         </select>
       </div>
-<<<<<<< HEAD
+
       {% if sem_id == 'S1' or sem_id == 'S2' %}
       <div class="mb-3">
         <label class="fl">Portail</label>
@@ -52,9 +52,9 @@
       <button type="submit" class="btn btn-danger w-100 py-2 fw-bold">
         <i class="fas fa-file-pdf me-2"></i>Générer & Ouvrir le PDF A3
       </button>
-=======
+
       <button type="submit" class="btn btn-danger w-100 py-2 fw-bold"><i class="fas fa-file-pdf me-2"></i>Générer & Ouvrir le PDF A3</button>
->>>>>>> 363b1a1fb6c4f99fa0553ecbc107b1dc26c19eff
+
     </form>
   </div>
 </div>
