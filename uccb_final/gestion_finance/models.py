@@ -132,73 +132,6 @@ class Personnel(models.Model):
     def __str__(self):
         return f"{self.name} - {self.get_poste_display()}"
 
-class Bus(models.Model):
-    numero = models.CharField(max_length=20, unique=True)
-    plaque = models.CharField(max_length=20, unique=True)
-    capacite = models.PositiveIntegerField()
-
-    statut = models.CharField(
-        max_length=20,
-        choices=[
-            ('actif', 'Actif'),
-            ('maintenance', 'Maintenance'),
-            ('hors_service', 'Hors service'),
-        ],
-        default='actif'
-    )
-
-    def __str__(self):
-        return f"Bus {self.numero} ({self.plaque})"
-
-    @property
-    def chauffeur_actuel(self):
-        affectation = self.affectations.filter(actif=True).first()
-        return affectation.chauffeur if affectation else None
-
-
-class AffectationTransport(models.Model):
-    bus = models.ForeignKey(Bus, on_delete=models.CASCADE, related_name='affectations')
-    chauffeur = models.ForeignKey(
-        Personnel,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-    trajet = models.ForeignKey("Trajet", on_delete=models.CASCADE)
-    date_debut = models.DateField()
-    date_fin = models.DateField(null=True, blank=True)
-    actif = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ['-date_debut']
-        unique_together = [('bus', 'trajet', 'date_debut')]
-
-    def __str__(self):
-        statut = "en cours" if self.actif else str(self.date_fin)
-        return (
-            f"Affectation de {self.chauffeur} "
-            f"au bus {self.bus} — "
-            f"du {self.date_debut} au {statut}"
-        )
-    
-
-class Trajet(models.Model):
-    nom = models.CharField(max_length=100)
-
-    depart = models.CharField(max_length=100)
-
-    destination = models.CharField(max_length=100)
-
-    heure_depart = models.TimeField()
-
-    heure_arrivee = models.TimeField()
-
-    def __str__(self):
-        return (
-            f"{self.nom} : "
-            f"{self.depart} → {self.destination}"
-        )
-    
 
 class DepenseTransport(models.Model):
     TYPES_CHOICES = [
@@ -207,7 +140,7 @@ class DepenseTransport(models.Model):
         ('reparation', 'Réparation'),
     ]
 
-    bus = models.ForeignKey(Bus, on_delete=models.CASCADE, related_name='depenses')
+    bus = models.ForeignKey('logistique.Bus', on_delete=models.CASCADE, related_name='depenses')
     type_depense = models.CharField(max_length=20, choices=TYPES_CHOICES)
     montant = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True)

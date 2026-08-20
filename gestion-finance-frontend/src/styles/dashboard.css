@@ -1,0 +1,428 @@
+@import './tokens.css';
+
+/* ============================================================
+   LAYOUT GÉNÉRAL
+   ============================================================ */
+
+.db-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  font-family: var(--font-sans);
+  color: var(--body);
+}
+
+/* Actions d'en-tête (période + export) — équivalent de {% block header_actions %} */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: .5rem .9rem;
+  font-family: var(--font-sans);
+  font-size: .8125rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--body);
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease;
+}
+.btn:hover { border-color: var(--ink); color: var(--ink); }
+
+.btn-primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--ink-soft); border-color: var(--ink-soft); color: #fff; }
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: .8125rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   ROW 1 — KPI CARDS
+   ============================================================ */
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 960px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .kpi-row { grid-template-columns: 1fr; }
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--ink);
+  border-radius: var(--radius);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.kpi-label {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.kpi-value {
+  font-family: var(--font-serif);
+  font-size: 1.65rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.15;
+}
+
+.kpi-value--large { font-size: 1.9rem; }
+
+.kpi-currency,
+.kpi-unit {
+  font-family: var(--font-sans);
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.kpi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  align-self: flex-start;
+  padding: .15rem .5rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  font-weight: 600;
+}
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-red   { background: var(--brick-bg); color: var(--brick); }
+
+.kpi-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: .75rem;
+  font-weight: 500;
+}
+.trend-up   { color: var(--green); }
+.trend-down { color: var(--brick); }
+
+.kpi-progress-wrap { margin-top: var(--space-1); }
+
+.kpi-progress-track {
+  height: 5px;
+  background: var(--grid);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.kpi-progress-fill {
+  height: 100%;
+  background: var(--gold);
+  transition: width .4s ease;
+}
+.kpi-progress-label {
+  display: block;
+  margin-top: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  color: var(--muted);
+}
+
+/* ============================================================
+   ROW 2 — GRILLE PRINCIPALE
+   ============================================================ */
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .main-grid { grid-template-columns: 1fr; }
+}
+
+.col-left,
+.col-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Carte générique */
+.db-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.db-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.db-card-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.db-card-link {
+  font-family: var(--font-sans);
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--gold);
+  text-decoration: none;
+}
+.db-card-link:hover { color: var(--ink); text-decoration: underline; }
+
+.db-card-body {
+  padding: var(--space-5);
+}
+.db-card-body--no-pad { padding: 0; }
+
+/* ============================================================
+   ÉTAT DES PAIEMENTS ÉTUDIANTS
+   ============================================================ */
+
+.stu-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.stu-stat {
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+.stu-label {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+  margin-bottom: var(--space-1);
+}
+.stu-val {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.stu-payes .stu-val    { color: var(--green); }
+.stu-nonpayes .stu-val { color: var(--brick); }
+
+.recouv-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-2);
+}
+.recouv-label {
+  font-size: .8rem;
+  color: var(--muted);
+}
+.recouv-amounts {
+  font-family: var(--font-mono);
+  font-size: .8rem;
+  color: var(--ink);
+}
+.recouv-track {
+  height: 8px;
+  background: var(--grid);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.recouv-fill {
+  height: 100%;
+  background: var(--green);
+  transition: width .4s ease;
+}
+.recouv-pct {
+  margin-top: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* ============================================================
+   MASSE SALARIALE
+   ============================================================ */
+
+.sal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.sal-item {
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.sal-item--green { border-color: var(--green); background: var(--green-bg); }
+.sal-label {
+  font-size: .7rem;
+  color: var(--muted);
+  margin-bottom: var(--space-1);
+}
+.sal-val {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.sal-currency { font-size: .7rem; color: var(--muted); }
+
+/* ============================================================
+   TABLE (retards de paiement)
+   ============================================================ */
+
+.db-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .85rem;
+}
+.db-table thead th {
+  text-align: left;
+  padding: var(--space-3) var(--space-5);
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+}
+.db-table tbody td {
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--grid);
+}
+.db-table tbody tr:last-child td { border-bottom: none; }
+.db-table-name  { color: var(--ink); font-weight: 500; }
+.db-table-mono  { font-family: var(--font-mono); color: var(--muted); }
+.db-table-amount {
+  font-family: var(--font-mono);
+  text-align: right;
+  color: var(--brick);
+  font-weight: 600;
+}
+
+/* ============================================================
+   ÉTAT VIDE
+   ============================================================ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+.empty-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--paper);
+}
+.empty-icon--green { background: var(--green-bg); }
+.empty-text {
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+/* ============================================================
+   DERNIERS PAIEMENTS
+   ============================================================ */
+
+.tx-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--grid);
+}
+.tx-row:last-child { border-bottom: none; }
+
+.tx-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tx-dot--in  { background: var(--green); }
+.tx-dot--out { background: var(--brick); }
+
+.tx-info { flex: 1; min-width: 0; }
+.tx-text {
+  font-size: .85rem;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tx-date {
+  font-size: .72rem;
+  color: var(--muted);
+}
+
+.tx-amount {
+  font-family: var(--font-mono);
+  font-size: .85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tx-amount--in  { color: var(--green); }
+.tx-amount--out { color: var(--brick); }
+.tx-currency { font-size: .7rem; color: var(--muted); font-weight: 400; }
+
+/* ============================================================
+   ÉTATS DE CHARGEMENT / ERREUR
+   ============================================================ */
+
+.db-loading,
+.db-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  font-family: var(--font-mono);
+  font-size: .85rem;
+  color: var(--muted);
+}
+.db-error { color: var(--brick); }

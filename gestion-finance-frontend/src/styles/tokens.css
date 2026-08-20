@@ -1,0 +1,57 @@
+:root {
+  /* Couleurs principales */
+  --ink: #111827;
+  --ink-soft: #1F2937;
+
+  --gold: #2563EB;
+  --gold-soft: #1D4ED8;
+  --gold-bg: #EFF6FF;
+  --gold-bg-strong: #DBEAFE;
+
+  /* Neutres */
+  --body: #374151;
+  --muted: #6B7280;
+  --border: #E5E7EB;
+  --grid: #F3F4F6;
+  --surface: #FFFFFF;
+  --paper: #F9FAFB;
+
+  /* Statuts */
+  --green: #16A34A;
+  --green-bg: #F0FDF4;
+  --brick: #DC2626;
+  --brick-bg: #FEF2F2;
+  --amber: #D97706;
+  --amber-bg: #FFFBEB;
+
+  /* Typographie */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
+
+  /* Rayons */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-full: 999px;
+
+  /* Ombres */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, .06);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, .10);
+
+  /* Espacements */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-sans);
+  color: var(--body);
+  background: var(--paper);
+  margin: 0;
+}

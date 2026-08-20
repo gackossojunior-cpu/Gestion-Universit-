@@ -1,18 +1,24 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
+from pydoc import text
+
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q, Sum
 from django.utils import timezone
-from rest_framework import generics
+from rest_framework import generics, status
 from django.contrib.auth.decorators import login_required
 from .utils import save_log
 from django.db.models.functions import TruncMonth
 import json
-
+from rest_framework.permissions import IsAuthenticated
 from gestion_eleves.models import Etudiant
-from .models import Transaction, DossierFinancier, Enseignant, Personnel, Bus, AffectationTransport, Trajet, DepenseTransport, AuditLog
-from .serializers import TransactionSerializer, DossierFinancierSerializer, BusSerializer, AffectationTransportSerializer, TrajetSerializer, DepenseTransportSerializer
-
+from .models import Transaction, DossierFinancier, Enseignant, Personnel, DepenseTransport, AuditLog
+from logistique.models import Bus
+from .serializers import TransactionSerializer, DossierFinancierSerializer, BusSerializer, \
+    AffectationTransportSerializer, TrajetSerializer, DepenseTransportSerializer, PersonnelSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # API Views (DRF)
@@ -37,12 +43,14 @@ def login_finance(request):
 class TransactionListCreateView(generics.ListCreateAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class TransactionRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
 
 
 class DossierFinancierListCreateView(generics.ListCreateAPIView):
@@ -54,6 +62,7 @@ class DossierFinancierRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestro
     queryset = DossierFinancier.objects.select_related('etudiant').all()
     serializer_class = DossierFinancierSerializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -70,7 +79,155 @@ def get_finance_stats():
         'solde': solde,
     }
 
+class DashboardDataView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        stats = get_finance_stats()
+
+        dossiers = DossierFinancier.objects.select_related('etudiant').all()
+        total_etu = dossiers.count()
+
+        nb_payes = dossiers.filter(stats,'paye').count()
+        nb_partiels = dossiers.filter(statut='partiel').count()
+        nb_non_payes = dossiers.filter(statut='non_paye').count()
+
+        total_attendu = sum(
+            (d.montant_total for d in dossiers),
+            Decimal('0')
+        )
+
+        total_paye_etu = sum(
+            (d.montant_paye for d in dossiers),
+            Decimal('0')
+        )
+
+        pct_recouvrement = (
+            total_paye_etu / total_attendu * 100
+            if total_attendu > 0
+            else Decimal('0')
+        )
+
+        #Les retards de paiement
+        retard = []
+
+        for dossier in dossiers.filter(
+            statut__in = ['partiel', 'non_paye']
+        ):
+            reste = dossier.montant_total - dossier.montant_paye
+
+            if reste > 0:
+                retard.append({
+                    'name': (
+                        f"{dossier.etudiant.nom} "
+                        f"{dossier.etudiant.prenom}"
+                    ),
+                    'matricule': dossier.etudiant.matricule,
+                    'reste': float(reste),
+                })
+
+        #Dernières transactions
+        derniers_paiements = []
+
+        for transaction in Transaction.objects.order_by(
+            '-created_at'
+        )[:10]:
+            derniers_paiements.append({
+                'id': str(transaction.id),
+                'text': transaction.text,
+                'amount': float(transaction.amount),
+                'created_at': transaction.created_at.isoformat(),
+            })
+
+        #Salaires
+        total_salaires = (
+            Enseignant.objects.aggregate(
+                total=Sum('salaire')
+            )['total'] or Decimal('0')
+        ) + (
+            Personnel.objects.aggregate(
+                total=Sum('salaire')
+            )['total'] or Decimal('0')
+        )
+
+        total_paye_salaires = (
+            Enseignant.objects.aggregate(
+                total=Sum('montant_paye')
+            )['total'] or Decimal('0')
+        ) + (
+            Personnel.objects.aggregate(
+                total=Sum('montant_paye')
+            )['total'] or Decimal('0')
+        )
+
+        #Grapique
+        transactions_par_mois = (
+            Transaction.objects
+            .annotate(mois=TruncMonth('created_at'))
+            .values('mois')
+            .order_by('mois')
+        )
+
+        labels = []
+        revenus_chart = []
+        depenses_chart = []
+
+        for mois in transactions_par_mois :
+            date = mois['mois']
+
+            revenus = (
+                Transaction.objects
+                .filter(
+                    created_at__year=date.year,
+                    created_at__month=date.month,
+                    amount__gt=0
+                )
+                .aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            )
+
+            depenses = (
+                Transaction.objects
+                .filter(
+                    created_at__year=date.year,
+                    created_at__month=date.month,
+                    amount__lt=0
+                )
+                .aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            )
+
+            labels.append(date.strftime('%b'))
+            revenus_chart.append(float(revenus))
+            depenses_chart.append(abs(float(depenses)))
+
+        #Réponse JSON
+
+        return Response({
+            'income': float(stats['income']),
+            'expense': float(stats['expense']),
+            'solde': float(stats['solde']),
+
+            'etu': {
+                'total': total_etu,
+                'payes': nb_payes,
+                'partiels': nb_partiels,
+                'non_payes': nb_non_payes,
+            },
+
+            'pct_recouvrement': float(pct_recouvrement),
+            'total_attendu': float(total_attendu),
+            'total_paye': float(total_paye_etu),
+
+            'retard': retard,
+
+            'derniers_paiements': derniers_paiements,
+
+            'total_salaires': float(total_salaires),
+            'total_paye_salaires': float(total_paye_salaires),
+
+            'labels_chart': labels,
+            'revenus_chart': revenus_chart,
+            'depenses_chart': depenses_chart,
+        })
 # ═══════════════════════════════════════════════════════════════════════════════
 # Dashboard
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -165,7 +322,163 @@ def dashboard_view(request):
     }
     return render(request, 'dashboard.html', context)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def dashboard_api_view(request):
+    stats = get_finance_stats()
 
+    # =========================
+    # DOSSIERS FINANCIERS
+    # =========================
+    dossiers = DossierFinancier.objects.select_related('etudiant').all()
+
+    total_etu = dossiers.count()
+    nb_payes = dossiers.filter(statut='paye').count()
+    nb_partiels = dossiers.filter(statut='partiel').count()
+    nb_non_payes = dossiers.filter(statut='non_paye').count()
+
+    total_attendu = sum(
+        (d.montant_total for d in dossiers),
+        Decimal('0')
+    )
+
+    total_paye_etu = sum(
+        (d.montant_paye for d in dossiers),
+        Decimal('0')
+    )
+
+    pct_recouvrement = (
+        (total_paye_etu / total_attendu) * 100
+        if total_attendu > 0
+        else Decimal('0')
+    )
+
+    # =========================
+    # RETARDS
+    # =========================
+    retard = []
+
+    for dossier in dossiers.filter(statut__in=['partiel', 'non_paye']):
+        reste = dossier.montant_total - dossier.montant_paye
+
+        if reste > 0:
+            retard.append({
+                'name': f"{dossier.etudiant.nom} {dossier.etudiant.prenom}",
+                'matricule': dossier.etudiant.matricule,
+                'reste': float(reste),
+            })
+
+    # =========================
+    # DERNIÈRES TRANSACTIONS
+    # =========================
+    derniers_paiements = []
+
+    for transaction in Transaction.objects.order_by('-created_at')[:10]:
+        derniers_paiements.append({
+            'id': str(transaction.id),
+            'text': transaction.text,
+            'amount': float(transaction.amount),
+            'created_at': transaction.created_at.isoformat()
+                if transaction.created_at else None,
+        })
+
+    # =========================
+    # SALAIRES
+    # =========================
+    total_salaires = (
+        Enseignant.objects.aggregate(
+            total=Sum('salaire')
+        )['total'] or Decimal('0')
+    ) + (
+        Personnel.objects.aggregate(
+            total=Sum('salaire')
+        )['total'] or Decimal('0')
+    )
+
+    total_paye_salaires = (
+        Enseignant.objects.aggregate(
+            total=Sum('montant_paye')
+        )['total'] or Decimal('0')
+    ) + (
+        Personnel.objects.aggregate(
+            total=Sum('montant_paye')
+        )['total'] or Decimal('0')
+    )
+
+    # =========================
+    # GRAPHIQUE
+    # =========================
+    transactions_par_mois = (
+        Transaction.objects
+        .annotate(mois=TruncMonth('created_at'))
+        .values('mois')
+        .order_by('mois')
+    )
+
+    labels = []
+    revenus_chart = []
+    depenses_chart = []
+
+    for mois in transactions_par_mois:
+        date = mois['mois']
+
+        revenus = (
+            Transaction.objects
+            .filter(
+                created_at__year=date.year,
+                created_at__month=date.month,
+                amount__gt=0
+            )
+            .aggregate(total=Sum('amount'))['total']
+            or Decimal('0')
+        )
+
+        depenses = (
+            Transaction.objects
+            .filter(
+                created_at__year=date.year,
+                created_at__month=date.month,
+                amount__lt=0
+            )
+            .aggregate(total=Sum('amount'))['total']
+            or Decimal('0')
+        )
+
+        labels.append(date.strftime('%b'))
+        revenus_chart.append(float(revenus))
+        depenses_chart.append(abs(float(depenses)))
+
+    # =========================
+    # RÉPONSE JSON
+    # =========================
+    return Response({
+        'solde': float(stats['solde']),
+        'income': float(stats['income']),
+        'expense': float(stats['expense']),
+
+        'etu': {
+            'total': total_etu,
+            'payes': nb_payes,
+            'partiels': nb_partiels,
+            'non_payes': nb_non_payes,
+        },
+
+        'pct_recouvrement': float(pct_recouvrement),
+
+        'total_attendu': float(total_attendu),
+        'total_paye': float(total_paye_etu),
+
+        'retard': retard,
+
+        'derniers_paiements': derniers_paiements,
+
+        'total_salaires': float(total_salaires),
+        'total_paye_salaires': float(total_paye_salaires),
+
+        'labels_chart': labels,
+        'revenus_chart': revenus_chart,
+        'depenses_chart': depenses_chart,
+    })
 # ═══════════════════════════════════════════════════════════════════════════════
 # Étudiants (dossiers financiers)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -536,6 +849,43 @@ def delete_personnel(request, id):
     messages.success(request, f"Personnel {pers.name} supprimé.")
     return redirect('personnel')
 
+class PersonnelListAPIView(generics.ListAPIView):
+    queryset = Personnel.objects.all()
+    serializer_class = PersonnelSerializer
+
+
+class PersonnelPayView(APIView):
+    def post(self, request, id):
+        try:
+            personnel = Personnel.objects.get(id=id)
+        except Personnel.DoesNotExist:
+            return Response({'detail': 'Membre du personnel introuvable.'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            montant = Decimal(str(request.data.get('montant')))
+        except (TypeError, InvalidOperation):
+            return Response({'detail': 'Montant invalide.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if montant <= 0:
+            return Response({'detail': 'Le montant doit être positif.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        nouveau_paye = personnel.montant_paye + montant
+        if nouveau_paye > personnel.salaire:
+            return Response(
+                {'detail': 'Le montant dépasse le salaire restant à payer.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        personnel.montant_paye = nouveau_paye
+        personnel.date_paiement = timezone.now().date()
+        personnel.statut = (
+            'paye' if personnel.montant_paye >= personnel.salaire
+            else 'partiel' if personnel.montant_paye > 0
+            else 'en_attente'
+        )
+        personnel.save()
+
+        return Response(PersonnelSerializer(personnel).data, status=status.HTTP_200_OK)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Transactions
@@ -635,176 +985,6 @@ def student_receipt(request, id):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Transports (inchangé — pas de lien avec Etudiant)
 # ═══════════════════════════════════════════════════════════════════════════════
-@login_required
-def transports_view(request):
-    buses = Bus.objects.all()
-    trajets = Trajet.objects.all()
-    affectations = AffectationTransport.objects.filter(actif=True)
-    depenses = DepenseTransport.objects.all()
-    personnels = Personnel.objects.all()
-
-    total_buses = buses.count()
-    buses_actifs = buses.filter(statut='actif').count()
-    buses_maintenance = buses.filter(statut='maintenance').count()
-    buses_hors_service = buses.filter(statut='hors_service').count()
-    total_trajets = trajets.count()
-    active_affectations = affectations.count()
-
-    total_depenses = depenses.aggregate(total=Sum('montant'))['total'] or Decimal('0')
-    depenses_carburant = depenses.filter(type_depense='carburant').aggregate(total=Sum('montant'))['total'] or Decimal('0')
-    depenses_entretien = depenses.filter(type_depense='entretien').aggregate(total=Sum('montant'))['total'] or Decimal('0')
-    depenses_reparation = depenses.filter(type_depense='reparation').aggregate(total=Sum('montant'))['total'] or Decimal('0')
-
-    context = {
-        'buses': buses,
-        'trajets': trajets,
-        'affectations': affectations,
-        'depenses': depenses,
-        'personnels': personnels,
-        'total_buses': total_buses,
-        'buses_actifs': buses_actifs,
-        'buses_maintenance': buses_maintenance,
-        'buses_hors_service': buses_hors_service,
-        'total_trajets': total_trajets,
-        'active_affectations': active_affectations,
-        'total_depenses': total_depenses,
-        'depenses_carburant': depenses_carburant,
-        'depenses_entretien': depenses_entretien,
-        'depenses_reparation': depenses_reparation,
-    }
-    return render(request, 'transports.html', context)
-
-@login_required
-def add_bus(request):
-    if request.method == 'POST':
-        numero = request.POST.get('numero')
-        plaque = request.POST.get('plaque')
-        capacite = int(request.POST.get('capacite', 50))
-
-        bus = Bus.objects.create(
-            numero=numero,
-            plaque=plaque,
-            capacite=capacite,
-            statut='actif'
-        )
-
-        save_log(
-            request,
-            "Ajout bus",
-            f"Bus {bus.numero} ajouté."
-        )
-        messages.success(request, f"Bus {bus.numero} ajouté avec succès.")
-    return redirect('transports')
-
-@login_required
-def edit_bus(request, id):
-    bus = get_object_or_404(Bus, id=id)
-    if request.method == 'POST':
-        bus.numero = request.POST.get('numero', bus.numero)
-        bus.plaque = request.POST.get('plaque', bus.plaque)
-        bus.capacite = int(request.POST.get('capacite', bus.capacite))
-        bus.statut = request.POST.get('statut', bus.statut)
-        bus.save()
-        save_log(
-            request,
-            "Bus édité",
-            f"Bus {bus.numero} édité."
-        )
-        messages.success(request, f"Bus {bus.numero} modifié avec succès.")
-    return redirect('transports')
-
-@login_required
-def delete_bus(request, id):
-    bus = get_object_or_404(Bus, id=id)
-    numero = bus.numero
-    bus.delete()
-    save_log(
-        request,
-        "Suppression Bus",
-        f"Bus {numero} supprimé"
-    )
-    messages.success(request, f"Bus {numero} supprimé avec succès.")
-    return redirect('transports')
-
-@login_required
-def add_trajet(request):
-    if request.method == 'POST':
-        nom = request.POST.get('nom')
-        depart = request.POST.get('depart')
-        destination = request.POST.get('destination')
-        heure_depart = request.POST.get('heure_depart')
-        heure_arrivee = request.POST.get('heure_arrivee')
-
-        trajet = Trajet.objects.create(
-            nom=nom,
-            depart=depart,
-            destination=destination,
-            heure_depart=heure_depart,
-            heure_arrivee=heure_arrivee
-        )
-
-        save_log(
-            request,
-            "Ajout trajet",
-            f"{trajet.nom} créé."
-        )
-        messages.success(request, f"Trajet {trajet.nom} ajouté avec succès.")
-    return redirect('transports')
-
-@login_required
-def delete_trajet(request, id):
-    trajet = get_object_or_404(Trajet, id=id)
-    nom = trajet.nom
-    trajet.delete()
-    save_log(
-        request,
-        "Suppression trajet",
-        f"le trajet {nom} supprimé"
-    )
-    messages.success(request, f"Trajet {nom} supprimé avec succès.")
-    return redirect('transports')
-
-@login_required
-def add_affectation(request):
-    if request.method == 'POST':
-        bus_id = request.POST.get('bus_id')
-        chauffeur_id = request.POST.get('chauffeur_id')
-        trajet_id = request.POST.get('trajet_id')
-        date_debut = request.POST.get('date_debut')
-
-        bus = get_object_or_404(Bus, id=bus_id)
-        chauffeur = get_object_or_404(Personnel, id=chauffeur_id) if chauffeur_id else None
-        trajet = get_object_or_404(Trajet, id=trajet_id)
-
-        affectation = AffectationTransport.objects.create(
-            bus=bus,
-            chauffeur=chauffeur,
-            trajet=trajet,
-            date_debut=date_debut,
-            actif=True
-        )
-
-        save_log(
-            request,
-            "Affectation",
-            f"{chauffeur.name if chauffeur else 'N/A'} affecté au bus {bus.numero}."
-        )
-        messages.success(request, f"Affectation de transport {affectation.id} créée avec succès.")
-    return redirect('transports')
-
-@login_required
-def end_affectation(request, id):
-    affectation = get_object_or_404(AffectationTransport, id=id)
-    affectation.date_fin = timezone.now().date()
-    affectation.actif = False
-    affectation.save()
-    save_log(
-        request,
-        "Fin d'affectation",
-        f"Affectation {affectation.id} terminée."
-    )
-    messages.success(request, f"Affectation {affectation.id} terminée.")
-    return redirect('transports')
 
 @login_required
 def add_depense_transport(request):
@@ -848,3 +1028,101 @@ def delete_depense_transport(request, id):
     )
     messages.success(request, "Dépense de transport supprimée avec succès.")
     return redirect('transports')
+
+
+
+class EnseignantListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = Enseignant.objects.all()
+
+        q = request.GET.get('q', '')
+        mois = request.GET.get('mois', '')
+        statut = request.GET.get('statut', 'all')
+
+        if q:
+            queryset = queryset.filter(
+                Q(name__icontains=q) |
+                Q(email__icontains=q) |
+                Q(departement__icontains=q)
+            )
+        if mois:
+            queryset = queryset.filter(mois_concerne=mois)
+        if statut != 'all':
+            queryset = queryset.filter(statut=statut)
+
+        enseignants = []
+        for ens in queryset:
+            enseignants.append({
+                'id': str(ens.id),
+                'name': ens.name,
+                'email': ens.email,
+                'departement': ens.departement,
+                'type': ens.type,
+                'salaire': float(ens.salaire),
+                'montant_paye': float(ens.montant_paye),
+                'mois_concerne': ens.mois_concerne,
+                'statut': ens.statut,
+                'date_paiement': ens.date_paiement.isoformat() if ens.date_paiement else None,
+            })
+
+        return Response(enseignants)
+
+
+
+
+
+class EnseignantPayAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        try:
+            enseignant = get_object_or_404(Enseignant, id=pk)
+            montant =  Decimal(str(request.data.get('montant_paye', 0) or
+                                   request.data.get('montant', 0)))
+
+            if enseignant.montant_paye >= enseignant.salaire:
+                return Response(
+                    {'error': f"L'enseignant {enseignant.name} a déjà reçu la totalité de son salaire."},
+                    status=400
+                )
+
+            enseignant.montant_paye += montant
+            enseignant.date_paiement = timezone.now().date()
+
+            if enseignant.montant_paye >= enseignant.salaire:
+                enseignant.statut = 'paye'
+            elif enseignant.montant_paye > 0:
+                enseignant.statut = 'partiel'
+
+            enseignant.save()
+
+            Transaction.objects.create(
+                text = f"Salaire enseignant - {enseignant.name}",
+                amount =- montant,
+            )
+
+            save_log(request, "Paiement enseignant API", f"{enseignant.name} : {montant} FCFA.")
+
+            return Response({
+                'id': enseignant.id,
+                'name': enseignant.name,
+                'montant_paye': float(enseignant.montant_paye),
+                'salaire': float(enseignant.salaire),
+                'statut': enseignant.statut,
+                'message': f'Paiement de {montant} enregistré pour {enseignant.montant_paye} FCFA.'
+            })
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+
+
+class DepenseTransportListCreateView(generics.ListCreateAPIView):
+    queryset = DepenseTransport.objects.select_related('bus').all()
+    serializer_class = DepenseTransportSerializer
+
+class DepenseTransportDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = DepenseTransport.objects.select_related('bus').all()
+    serializer_class = DepenseTransportSerializer
+    lookup_field = 'id'

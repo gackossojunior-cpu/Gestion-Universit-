@@ -1,0 +1,602 @@
+@import './tokens.css';
+
+.etudiants-page {
+  padding: var(--space-5) var(--space-6);
+}
+
+/* --- Alerts --- */
+.alert {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: .875rem;
+  font-weight: 500;
+}
+.alert-success { background: var(--green-bg); color: var(--green); border: 1px solid var(--green); }
+.alert-error { background: var(--brick-bg); color: var(--brick); border: 1px solid var(--brick); }
+.mb-4 { margin-bottom: var(--space-4); }
+
+/* --- Stat cards --- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.scard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4) var(--space-5);
+}
+.scard-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+  background: var(--grid);
+  color: var(--muted);
+}
+.scard.ink .scard-icon { background: var(--gold-bg); color: var(--gold); }
+.scard.green .scard-icon { background: var(--green-bg); color: var(--green); }
+.scard.amber .scard-icon { background: var(--amber-bg); color: var(--amber); }
+.scard.rose .scard-icon { background: var(--brick-bg); color: var(--brick); }
+.scard-val { font-family: var(--font-sans); font-size: 1.65rem; font-weight: 700; color: var(--ink); }
+.scard-label { font-size: .8125rem; color: var(--muted); margin-top: var(--space-1); }
+
+/* --- Filter bar --- */
+.filter-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+.filter-row { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.filter-search { flex: 1; min-width: 220px; position: relative; display: flex; align-items: center; }
+.filter-search svg { position: absolute; left: 12px; width: 16px; height: 16px; color: var(--muted); }
+.filter-input {
+  width: 100%;
+  padding: .55rem .75rem .55rem 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .875rem;
+  font-family: var(--font-sans);
+}
+.filter-input:focus { outline: none; border-color: var(--gold); }
+.filter-select {
+  padding: .55rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .875rem;
+  font-family: var(--font-sans);
+  background: var(--surface);
+  color: var(--body);
+}
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: .55rem 1rem;
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: .875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-add:hover { background: var(--gold-soft); }
+
+/* --- Table --- */
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.table-card-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+.table-card-head h3 { margin: 0; font-family: var(--font-sans); font-size: .9375rem; font-weight: 600; color: var(--ink); }
+.table-card-head span { font-size: .8125rem; color: var(--muted); }
+.table-scroll { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  text-align: left;
+  padding: var(--space-3) var(--space-5);
+  font-size: .7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+}
+.data-table th.center, .data-table td.center { text-align: center; }
+.data-table th.right, .data-table td.right { text-align: right; }
+.data-table td {
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--grid);
+  font-size: .875rem;
+  vertical-align: middle;
+}
+.data-table tbody tr:hover { background: var(--paper); }
+
+/* --- Cellule étudiant --- */
+.etu-name { display: flex; align-items: center; gap: var(--space-3); }
+.etu-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--gold-bg-strong);
+  color: var(--gold-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 700; flex-shrink: 0;
+}
+.etu-label { font-weight: 600; color: var(--ink); }
+.etu-alerte { display: flex; align-items: center; gap: 4px; font-size: .68rem; color: var(--brick); margin-top: 2px; }
+
+/* --- Badges --- */
+.badge-mono {
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  background: var(--grid);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  color: var(--body);
+}
+.badge-level {
+  font-size: .75rem;
+  background: var(--gold-bg);
+  color: var(--gold);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+.badge-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: .75rem;
+  font-weight: 600;
+}
+.badge-status .dot { width: 6px; height: 6px; border-radius: 50%; }
+.badge-paye { background: var(--green-bg); color: var(--green); }
+.badge-paye .dot { background: var(--green); }
+.badge-partiel { background: var(--amber-bg); color: var(--amber); }
+.badge-partiel .dot { background: var(--amber); }
+.badge-nonpaye { background: var(--brick-bg); color: var(--brick); }
+.badge-nonpaye .dot { background: var(--brick); }
+
+/* --- Montants --- */
+.amount-main { font-family: var(--font-mono); font-weight: 600; color: var(--ink); }
+.amount-sub { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+
+/* --- Actions table --- */
+.action-row { display: flex; align-items: center; gap: 6px; justify-content: center; }
+.btn-recu, .btn-pay, .btn-edit, .btn-del {
+  display: flex; align-items: center; gap: 4px;
+  padding: .35rem .6rem;
+  border-radius: var(--radius-sm);
+  font-size: .75rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--body);
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-pay { background: var(--gold); color: #fff; border-color: var(--gold); }
+.btn-pay:hover { background: var(--gold-soft); }
+.btn-edit:hover, .btn-recu:hover { background: var(--paper); }
+.btn-del { color: var(--brick); }
+.btn-del:hover { background: var(--brick-bg); border-color: var(--brick); }
+
+/* --- État vide / chargement / erreur --- */
+.empty-td { text-align: center; padding: var(--space-6) var(--space-4); }
+.empty-circle {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--grid); color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto var(--space-3);
+}
+.empty-title { font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.empty-sub { font-size: .8125rem; color: var(--muted); margin-bottom: var(--space-4); }
+.btn-empty {
+  padding: .5rem 1rem;
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: .8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.loading-state, .error-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: var(--space-6) var(--space-4);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: .875rem;
+}
+.spinner {
+  width: 24px; height: 24px;
+  border: 3px solid var(--grid);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- Formulaires (StudentModal / PaymentModal) --- */
+.field-group { margin-bottom: var(--space-4); }
+.field-group label {
+  display: block;
+  font-size: .8125rem;
+  font-weight: 600;
+  color: var(--body);
+  margin-bottom: var(--space-2);
+}
+.form-input {
+  width: 100%;
+  padding: .55rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .875rem;
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+.form-input:focus { outline: none; border-color: var(--gold); }
+
+.btn {
+  padding: .55rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: .875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary { background: var(--gold); color: #fff; }
+.btn-primary:hover { background: var(--gold-soft); }
+.btn-primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+.btn-secondary { background: var(--surface); border: 1px solid var(--border); color: var(--body); }
+.btn-secondary:hover { background: var(--paper); }
+
+/* --- Modal --- */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(17, 24, 39, .5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  padding: var(--space-4);
+}
+.modal-panel {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+.modal-header { display: flex; justify-content: space-between; align-items: flex-start; padding: var(--space-5) var(--space-5) 0; }
+.modal-title { margin: 0; font-family: var(--font-sans); font-size: 1.0625rem; font-weight: 700; color: var(--ink); }
+.modal-subtitle { margin: 4px 0 0; font-size: .8125rem; color: var(--muted); }
+.modal-close { background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px; border-radius: var(--radius-sm); }
+.modal-close:hover { background: var(--grid); }
+.modal-body { padding: var(--space-5); overflow-y: auto; }
+.modal-footer { display: flex; justify-content: flex-end; gap: var(--space-2); padding: var(--space-4) var(--space-5); border-top: 1px solid var(--border); }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   AMÉLIORATIONS VISUELLES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Icônes dans les cartes stats */
+.scard-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.scard.green .scard-icon {
+  background: rgba(30, 122, 76, 0.1);
+}
+
+.scard.amber .scard-icon {
+  background: rgba(169, 128, 63, 0.1);
+}
+
+.scard.rose .scard-icon {
+  background: rgba(169, 58, 38, 0.1);
+}
+
+/* Tendance dans les cartes */
+.scard-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.scard-trend.positive {
+  color: #1E7A4C;
+}
+
+/* Barre de progression */
+.scard-progress {
+  margin-top: 8px;
+  height: 4px;
+  background: #f3f4f6;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #d4a017, #f0c040);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* Badge mois courant */
+.mois-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f4f6;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+/* Effet hover sur les cartes */
+.scard {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.scard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Effet hover sur les lignes du tableau */
+.data-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(212, 160, 23, 0.05);
+}
+
+/* Avatar avec dégradé */
+.etu-avatar {
+  background: linear-gradient(135deg, #d4a017, #f0c040);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Badge département avec bordure gauche */
+.badge-mono {
+  border-left: 3px solid #d4a017;
+  padding-left: 8px;
+}
+
+/* Animation du point de statut */
+.dot {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 160, 23, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(212, 160, 23, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 160, 23, 0);
+  }
+}
+
+/* --- Variantes stat card supplémentaires --- */
+.scard.blue .scard-icon { background: var(--gold-bg); color: var(--gold); }
+.scard.violet .scard-icon { background: #F5F3FF; color: #7C3AED; }
+
+/* --- Pill row --- */
+.pill-row {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: .8125rem;
+  font-weight: 600;
+}
+.pill svg { width: 14px; height: 14px; }
+.pill-green { background: var(--green-bg); color: var(--green); }
+.pill-amber { background: var(--amber-bg); color: var(--amber); }
+.pill-slate { background: var(--grid); color: var(--muted); }
+
+/* --- Cellule membre (Personnel) --- */
+.member-cell { display: flex; flex-direction: column; gap: 4px; }
+.member-row { display: flex; align-items: center; gap: var(--space-3); }
+.member-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--gold-bg-strong);
+  color: var(--gold-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 700; flex-shrink: 0;
+}
+.member-name { font-weight: 600; color: var(--ink); }
+.member-meta { font-size: .75rem; color: var(--muted); margin-left: 46px; }
+
+.badge-poste {
+  font-size: .75rem;
+  background: var(--grid);
+  color: var(--body);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+
+/* --- Stat grid 3 colonnes (Transactions) --- */
+.stat-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.scard-currency { font-size: .7rem; color: var(--muted); margin-top: 4px; }
+
+/* --- Quick add row --- */
+.quick-row {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+.btn-quick {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: .5rem .9rem;
+  border-radius: var(--radius-sm);
+  font-size: .8125rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.btn-quick.income { background: var(--green-bg); color: var(--green); border-color: var(--green); }
+.btn-quick.expense { background: var(--brick-bg); color: var(--brick); border-color: var(--brick); }
+.btn-quick:hover { opacity: .85; }
+
+/* --- Table head avec filtres inline --- */
+.table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.table-head-title { font-family: var(--font-sans); font-size: .9375rem; font-weight: 600; color: var(--ink); }
+.filter-label { font-size: .75rem; color: var(--muted); margin-right: 4px; }
+.filter-btn {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--grid);
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.filter-btn.active-blue { background: var(--gold-bg); color: var(--gold); }
+.filter-btn.active-green { background: var(--green-bg); color: var(--green); }
+.filter-count { font-size: .75rem; color: var(--muted); margin-left: 4px; }
+
+/* --- Cellule date --- */
+.date-cell { display: flex; align-items: center; gap: var(--space-2); }
+.date-icon {
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--grid);
+  color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.date-main { font-size: .8125rem; font-weight: 600; color: var(--ink); }
+.date-time { font-size: .7rem; color: var(--muted); }
+
+/* --- Description --- */
+.desc-main { display: flex; align-items: center; gap: 8px; font-size: .875rem; color: var(--ink); }
+.desc-label {
+  font-size: .68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+.desc-label.blue { background: var(--gold-bg); color: var(--gold); }
+.desc-label.green { background: var(--green-bg); color: var(--green); }
+
+/* --- Montant en pill --- */
+.amount-pill {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: .8125rem;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+.amount-pill.income { background: var(--green-bg); color: var(--green); }
+.amount-pill.expense { background: var(--brick-bg); color: var(--brick); }
+
+/* --- Badge type --- */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: .75rem;
+  font-weight: 600;
+}
+.type-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+.type-badge.income { background: var(--green-bg); color: var(--green); }
+.type-badge.income .dot { background: var(--green); }
+.type-badge.expense { background: var(--brick-bg); color: var(--brick); }
+.type-badge.expense .dot { background: var(--brick); }
+
+/* --- Bouton reçu --- */
+.btn-receipt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: .35rem .6rem;
+  border-radius: var(--radius-sm);
+  font-size: .75rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--body);
+  text-decoration: none;
+}
+.btn-receipt:hover { background: var(--paper); }
+
+/* --- Hint sous champ formulaire --- */
+.field-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: .75rem;
+  color: var(--muted);
+}
