@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UCCB — Système de Gestion Académique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --navy: #1e2d40;
+  --text: #1e2d40;
+  --muted: #6b7280;
+  --border: rgba(30,45,64,.10);
+  --border-strong: rgba(30,45,64,.18);
+  --primary: #0e6e62;
+  --primary-dark: #0a564c;
+  --primary-tint: #e3f3f0;
+  --gold: #b8873a;
+  --gold-tint: #fbf3e2;
+  --radius: 10px;
+  --shadow-sm: 0 1px 3px rgba(30,45,64,.05);
+  --shadow-md: 0 8px 22px rgba(30,45,64,.08);
+}
+html,
+body {
+  min-height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 56px;
+  height: 64px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.nav-logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.nav-logo img {
+  height: 38px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+.nav-brand-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: -.01em;
+}
+.nav-annee {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gold);
+  background: var(--gold-tint);
+  border: 1px solid var(--gold);
+  padding: 4px 11px;
+  border-radius: 20px;
+}
+/* =========================================================
+   HERO — STYLE DE L'ANCIEN PORTAIL
+   ========================================================= */
+.hero {
+  text-align: center;
+  padding: 64px 24px 34px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.hero-h1 {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(52px, 6vw, 76px);
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.08;
+  margin-bottom: 8px;
+}
+.hero-h1 span {
+  display: inline-block;
+  color: var(--navy);
+}
+.hero-sub {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(29px, 3.5vw, 45px);
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 18px;
+  position: relative;
+  display: inline-block;
+}
+.hero-sub::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #3b9edb;
+  border-radius: 2px;
+}
+.hero-desc {
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+/* =========================================================
+   STATISTIQUES — COMPACTES
+   ========================================================= */
+.stats-wrap {
+  max-width: 900px;
+  margin: 0 auto 38px;
+  padding: 0 24px;
+}
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  box-shadow: var(--shadow-sm);
+  padding: 11px 8px;
+  text-align: center;
+}
+.stat-ic {
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+.stat-val {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1;
+}
+.stat-lbl {
+  font-size: 8.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-top: 5px;
+  font-weight: 600;
+}
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+.section-wrap {
+  max-width: 1000px;
+  margin: 0 auto 42px;
+  padding: 0 24px;
+}
+/* TITRES DE SECTION CENTRÉS */
+.section-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: #8a929d;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+.section-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: #8a929d;
+  margin-bottom: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.section-title::after {
+  display: none;
+}
+/* =========================================================
+   CARTES DES ESPACES — CONTENU CENTRÉ
+   ========================================================= */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.module-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  padding: 17px 15px;
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+  transition:
+    transform .15s,
+    box-shadow .15s,
+    border-color .15s;
+}
+.module-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+/* ICÔNE CENTRÉE */
+.module-ic {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: var(--primary-tint);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  margin-bottom: 11px;
+}
+/* TITRE CENTRÉ */
+.module-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 5px;
+  text-align: center;
+}
+/* DESCRIPTION CENTRÉE */
+.module-desc {
+  font-size: 10.5px;
+  color: var(--muted);
+  line-height: 1.45;
+  padding-right: 0;
+  text-align: center;
+  max-width: 220px;
+}
+/* FLÈCHE */
+.module-arrow {
+  position: absolute;
+  top: 17px;
+  right: 15px;
+  color: #a0a7b0;
+  font-size: 10px;
+  transition:
+    transform .15s,
+    color .15s;
+}
+.module-card:hover .module-arrow {
+  color: var(--primary);
+  transform: translateX(3px);
+}
+/* =========================================================
+   PROCHAINEMENT
+   ========================================================= */
+.modules-grid.soon {
+  grid-template-columns: repeat(3, 1fr);
+}
+/*
+   IMPORTANT :
+   Les cartes "Prochainement" gardent maintenant
+   exactement le même aspect visuel que les autres cartes.
+*/
+.modules-grid.soon .module-card {
+  opacity: 1;
+  cursor: default;
+}
+/* Même icône que les espaces disponibles */
+.modules-grid.soon .module-ic {
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+/* Le badge reste visible */
+.soon-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--gold);
+  background: var(--gold-tint);
+  border: 1px solid var(--gold);
+  padding: 3px 7px;
+  border-radius: 20px;
+}
+/* =========================================================
+   FOOTER
+   ========================================================= */
+footer {
+  text-align: center;
+  padding: 18px 24px 24px;
+  font-size: 11px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+}
+footer strong {
+  color: var(--navy);
+  font-weight: 600;
+}
+/* =========================================================
+   ANIMATION
+   ========================================================= */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.navbar {
+  animation: fadeUp .4s ease both;
+}
+.hero {
+  animation: fadeUp .45s .08s ease both;
+}
+.stats-wrap {
+  animation: fadeUp .45s .14s ease both;
+}
+.section-wrap {
+  animation: fadeUp .45s .20s ease both;
+}
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 900px) {
+  .stats-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .modules-grid,
+  .modules-grid.soon {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .hero-h1 {
+    font-size: clamp(48px, 7vw, 68px);
+  }
+}
+@media (max-width: 600px) {
+  .navbar {
+    padding: 0 20px;
+  }
+  .hero {
+    padding: 48px 20px 30px;
+  }
+  .hero-h1 {
+    font-size: 48px;
+  }
+  .hero-sub {
+    font-size: 30px;
+  }
+  .stats-strip,
+  .modules-grid,
+  .modules-grid.soon {
+    grid-template-columns: 1fr;
+  }
+  .stats-wrap,
+  .section-wrap {
+    padding: 0 20px;
+  }
+}
+</style>
+</head>
+<body>
+<!-- =========================================================
+     NAVBAR
+     ========================================================= -->
+<nav class="navbar">
+  <a href="{% url 'portail_accueil' %}" class="nav-brand">
+<div class="nav-logo">
+  <img
+    src="{% static 'gestion_eleves/img/logo_uccb.jpg' %}"
+    alt="UCCB"
+  >
+</div>
+<span class="nav-brand-text">UCCB</span>
+  </a>
+
+{% if annee_active %}
+<span class="nav-annee">Année {{ annee_active }}</span>
+{% endif %}
+
+</nav>
+<!-- =========================================================
+     HERO
+     ========================================================= -->
+<section class="hero">
+  <h1 class="hero-h1">
+    Toute la gestion académique<br>
+    <span>sur une seule plateforme.</span>
+  </h1>
+  <div style="margin-bottom: 18px;">
+    <span class="hero-sub">
+      Simple, efficace et académique !
+    </span>
+  </div>
+  <p class="hero-desc">
+    Université Catholique du Congo-Brazzaville.<br>
+    Choisissez votre espace pour continuer.
+  </p>
+</section>
+<!-- =========================================================
+     STATISTIQUES
+     ========================================================= -->
+<div class="stats-wrap">
+  <div class="stats-strip">
+<div class="stat-card">
+  <!--<div class="stat-ic">🎓</div>-->
+  <div class="stat-val">{{ total_etudiants }}</div>
+  <div class="stat-lbl">Étudiants actifs</div>
+</div>
+<div class="stat-card">
+  <!--<div class="stat-ic">🏛️</div>-->
+  <div class="stat-val">{{ total_facultes }}</div>
+  <div class="stat-lbl">Facultés</div>
+</div>
+<div class="stat-card">
+  <!--<div class="stat-ic">📚</div>-->
+  <div class="stat-val">{{ total_filieres }}</div>
+  <div class="stat-lbl">Filières</div>
+</div>
+<div class="stat-card">
+  <!--<div class="stat-ic">👨‍🏫</div>-->
+  <div class="stat-val">{{ total_enseignants }}</div>
+  <div class="stat-lbl">Enseignants actifs</div>
+</div>
+<div class="stat-card">
+  <!--<div class="stat-ic">👥</div>-->
+  <div class="stat-val">{{ total_personnel }}</div>
+  <div class="stat-lbl">Personnel</div>
+</div>
+  </div>
+</div>
+<!-- =========================================================
+     ESPACES
+     ========================================================= -->
+<div class="section-wrap">
+  <div class="section-title">
+    Accéder à un espace
+  </div>
+  <div class="modules-grid">
+<!-- SECRÉTARIAT -->
+<a
+  href="{% url 'login_secretaire' %}"
+  class="module-card"
+>
+  <div class="module-ic">
+    <i class="fas fa-book-open"></i>
+  </div>
+  <div class="module-title">
+    Secrétariat
+  </div>
+  <div class="module-desc">
+    Inscriptions, dossiers étudiants, années académiques et facultés.
+  </div>
+  <i class="fas fa-arrow-right module-arrow"></i>
+</a>
+<!-- FACULTÉ -->
+<a
+  href="{% url 'login_faculte' %}"
+  class="module-card"
+>
+  <div class="module-ic">
+    <i class="fas fa-building-columns"></i>
+  </div>
+  <div class="module-title">
+    Faculté
+  </div>
+  <div class="module-desc">
+    Saisie des notes, délibération, passage de semestre, orientation.
+  </div>
+  <i class="fas fa-arrow-right module-arrow"></i>
+</a>
+<!-- RH -->
+<a
+  href="{% url 'login_rh' %}"
+  class="module-card"
+>
+  <div class="module-ic">
+    <i class="fas fa-users"></i>
+  </div>
+  <div class="module-title">
+    Ressources Humaines
+  </div>
+  <div class="module-desc">
+    Personnel de l'université et suivi des enseignants actifs.
+  </div>
+  <i class="fas fa-arrow-right module-arrow"></i>
+</a>
+<!-- ÉTUDIANT -->
+<a
+  href="{% url 'login_etudiant' %}"
+  class="module-card"
+>
+  <div class="module-ic">
+    <i class="fas fa-graduation-cap"></i>
+  </div>
+  <div class="module-title">
+    Étudiant
+  </div>
+  <div class="module-desc">
+    Programme, notes et résultats — espace personnel de l'étudiant.
+  </div>
+  <i class="fas fa-arrow-right module-arrow"></i>
+</a>
+  </div>
+</div>
+<!-- =========================================================
+     PROCHAINEMENT
+     ========================================================= -->
+<div class="section-wrap">
+  <div class="section-title">
+    Prochainement
+  </div>
+  <div class="modules-grid soon">
+<!-- FINANCE -->
+<div class="module-card">
+  <span class="soon-badge">
+    Bientôt
+  </span>
+  <div class="module-ic">
+    <i class="fas fa-sack-dollar"></i>
+  </div>
+  <div class="module-title">
+    Finance
+  </div>
+  <div class="module-desc">
+    Paiements, tranches et situation financière des étudiants.
+  </div>
+</div>
+<!-- EMPLOI DU TEMPS -->
+<div class="module-card">
+  <span class="soon-badge">
+    Bientôt
+  </span>
+  <div class="module-ic">
+    <i class="fas fa-calendar-days"></i>
+  </div>
+  <div class="module-title">
+    Emploi du temps
+  </div>
+  <div class="module-desc">
+    Planification des cours, salles et horaires.
+  </div>
+</div>
+<!-- LOGISTIQUE -->
+<div class="module-card">
+  <span class="soon-badge">
+    Bientôt
+  </span>
+  <div class="module-ic">
+    <i class="fas fa-bus"></i>
+  </div>
+  <div class="module-title">
+    Logistique
+  </div>
+  <div class="module-desc">
+    Gestion des bus et des ressources matérielles de l'université.
+  </div>
+</div>
+  </div>
+</div>
+<!-- =========================================================
+     FOOTER
+     ========================================================= -->
+<footer>
+  <strong>
+    Université Catholique du Congo-Brazzaville
+  </strong>
+
+
+
+Arrêté N°9554/MESRSIT/CAB du 21/09/2020
+
+</footer>
+</body>
+</html>

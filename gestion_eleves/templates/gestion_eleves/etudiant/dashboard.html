@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UCCB — Mon Espace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="{% static 'gestion_eleves/dist/api.css' %}" rel="stylesheet">
+</head>
+<body>
+{% csrf_token %}
+<div id="root" data-user="{{ etudiant.prenom }}"></div>
+<script type="module" src="{% static 'gestion_eleves/dist/etu-dashboard.js' %}"></script>
+</body>
+</html>

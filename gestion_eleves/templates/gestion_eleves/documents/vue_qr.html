@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mes Notes — {{ etudiant.nom }}</title>
+<style>
+:root { --navy:#0f2027; --teal:#2c5364; --ac:#00b4d8; --gold:#c8972a; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f5f9; color: #1e293b; }
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
+  color: #fff; padding: 24px 18px 40px;
+  border-radius: 0 0 24px 24px; margin-bottom: -16px;
+}
+.hero-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  padding: 3px 10px; border-radius: 16px;
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.hero h2 { font-size: 19px; font-weight: 700; line-height: 1.2; }
+.hero .meta { font-size: 11px; opacity: .5; margin-top: 5px; line-height: 1.7; }
+.parcours-chip {
+  display: inline-block; background: var(--gold); color: #fff;
+  padding: 2px 10px; border-radius: 16px;
+  font-size: 11px; font-weight: 600; margin-top: 7px;
+}
+
+/* Navigation semestres */
+.sem-nav {
+  background: #fff; padding: 12px 16px; margin: 16px 14px 0;
+  border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}
+.sem-nav-title { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+.sem-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.sem-pill {
+  display: inline-block; padding: 5px 14px;
+  border-radius: 20px; font-size: 12px; font-weight: 600;
+  text-decoration: none; border: 1.5px solid #dde8f0;
+  color: #64748b; background: #f8fafd; transition: all .15s;
+}
+.sem-pill.active {
+  background: var(--navy); color: #fff; border-color: var(--navy);
+}
+
+/* Contenu principal */
+.ctn { max-width: 600px; margin: 0 auto; padding: 20px 14px 36px; }
+
+/* Carte résultat global */
+.res-card {
+  border-radius: 14px; padding: 18px; text-align: center;
+  margin-bottom: 14px; box-shadow: 0 3px 14px rgba(0,0,0,.07);
+}
+.res-ok  { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+.res-ko  { background: linear-gradient(135deg, #fee2e2, #fecaca); }
+.res-moy { font-size: 34px; font-weight: 700; line-height: 1; }
+.res-dec { font-size: 13px; font-weight: 600; margin-top: 4px; }
+.res-cr  { font-size: 11px; opacity: .65; margin-top: 3px; }
+
+/* Cartes UE */
+.ue-card {
+  background: #fff; border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.05);
+  margin-bottom: 11px; overflow: hidden;
+}
+.ue-hdr {
+  padding: 10px 14px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid #f0f4f8;
+}
+.ue-nom { font-size: 13px; font-weight: 700; color: var(--navy); }
+.ue-code { font-size: 10px; color: #64748b; font-family: monospace; }
+.mc { padding: 3px 10px; border-radius: 16px; font-size: 13px; font-weight: 700; }
+.mok  { background: #d1fae5; color: #065f46; }
+.mko  { background: #fee2e2; color: #991b1b; }
+.mmid { background: #fef3c7; color: #92400e; }
+
+/* Lignes matière */
+.mat-row {
+  padding: 8px 14px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid #f8fafd; font-size: 12.5px;
+}
+.mat-row:last-child { border: none; }
+.mat-nm  { color: #334155; flex: 1; }
+.mat-notes { display: flex; gap: 5px; align-items: center; }
+.nt  { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+.ntd { background: #f1f5f9; color: #475569; }
+.nts { background: #e0f2fe; color: #0369a1; }
+.ntr { background: #fef3c7; color: #92400e; }
+.mat-fin { font-size: 13px; font-weight: 700; min-width: 36px; text-align: right; }
+
+/* Footer UE */
+.ue-foot {
+  padding: 6px 14px; background: #f8fafd;
+  display: flex; justify-content: space-between;
+  font-size: 10.5px; color: #64748b;
+}
+
+.foot-note { text-align: center; margin-top: 20px; font-size: 10px; color: #94a3b8; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div style="max-width:600px;margin:0 auto;">
+    <div class="hero-pill">🎓 UCCB — Relevé de notes</div>
+    <h2>{{ etudiant.nom|upper }} {{ etudiant.prenom }}</h2>
+    <div class="meta">
+      {{ etudiant.matricule }} · {{ etudiant.annee_academique.nom }}<br>
+      {{ etudiant.faculte.nom }}
+    </div>
+    <span class="parcours-chip">{{ parcours }}</span>
+  </div>
+</div>
+
+<!-- Navigation par semestre -->
+{% if semestres_dispo %}
+<div style="max-width:600px;margin:0 auto;">
+  <div class="sem-nav">
+    <div class="sem-nav-title">Choisir un semestre</div>
+    <div class="sem-pills">
+      {% for s in semestres_dispo %}
+      <a href="?semestre={{ s }}"
+         class="sem-pill {% if s == semestre_affiche %}active{% endif %}">
+        {{ s }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Contenu principal -->
+<div class="ctn">
+
+{% if ligne %}
+
+<!-- Résultat global -->
+<div class="res-card {% if ligne.decision == 'ADMIS' %}res-ok{% else %}res-ko{% endif %}">
+  <div class="res-moy" style="color:{% if ligne.decision == 'ADMIS' %}#065f46{% else %}#991b1b{% endif %};">
+    {{ ligne.moyenne_semestre|floatformat:2 }}<span style="font-size:16px;">/20</span>
+  </div>
+  <div class="res-dec">
+    {{ ligne.decision }}{% if ligne.mention != 'NÉANT' %} — {{ ligne.mention }}{% endif %}
+  </div>
+  <div class="res-cr">Crédits : {{ ligne.total_credits_valides }} / {{ ligne.total_credits_semestre }}</div>
+  {% if ligne.has_eliminatoire %}
+  <div style="font-size:11px;color:#dc2626;margin-top:5px;font-weight:600;">⚠️ Note éliminatoire &lt; 6/20</div>
+  {% endif %}
+</div>
+
+<!-- Détail par UE -->
+{% for ue_data in ligne.ues_detail %}
+<div class="ue-card">
+  <div class="ue-hdr">
+    <div>
+      <div class="ue-nom">{{ ue_data.ue.nom }}</div>
+      <div class="ue-code">[{{ ue_data.ue.code_ue }}] · {{ ue_data.total_credits_ue }} crédits</div>
+    </div>
+    <span class="mc {% if ue_data.moyenne_ue >= 10 %}mok{% elif ue_data.moyenne_ue >= 6 %}mmid{% else %}mko{% endif %}">
+      {{ ue_data.moyenne_ue|floatformat:2 }}
+    </span>
+  </div>
+
+  {% for m in ue_data.matieres %}
+  <div class="mat-row">
+    <div class="mat-nm">{{ m.matiere.nom }}</div>
+    <div class="mat-notes">
+      {% if m.is_absent %}
+      <span class="nt" style="background:#fee2e2;color:#991b1b;">ABSENT</span>
+      {% else %}
+      <span class="nt ntd" title="Devoir">D {{ m.note_devoir|floatformat:1 }}</span>
+      <span class="nt nts" title="Session">S {{ m.note_session|floatformat:1 }}</span>
+      {% if m.note_sr is not None %}
+      <span class="nt ntr" title="Rattrapage">R {{ m.note_sr|floatformat:1 }}</span>
+      {% endif %}
+      {% endif %}
+    </div>
+    <div class="mat-fin"
+      style="color:{% if m.note_calculee >= 10 %}#065f46{% elif m.note_calculee >= 6 %}#92400e{% else %}#991b1b{% endif %};">
+      {% if not m.is_absent %}{{ m.note_calculee|floatformat:2 }}{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="ue-foot">
+    <span>Total pts : {{ ue_data.total_points_ue|floatformat:2 }}</span>
+    <span>{% if ue_data.est_validee %}✅ UE validée{% else %}❌ Non validée{% endif %}</span>
+  </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div style="background:#fff;border-radius:12px;padding:36px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.05);margin-top:16px;">
+  <div style="font-size:36px;margin-bottom:10px;">📭</div>
+  <p style="color:#64748b;">
+    {% if semestres_dispo %}
+    Aucun résultat pour le semestre {{ semestre_affiche }}.
+    {% else %}
+    Aucune note disponible pour cet étudiant.
+    {% endif %}
+  </p>
+</div>
+{% endif %}
+
+<div class="foot-note">
+  Document généré par le système UCCB<br>
+  Université Catholique du Congo-Brazzaville · {{ etudiant.annee_academique.nom }}
+</div>
+
+</div><!-- /.ctn -->
+</body>
+</html>
