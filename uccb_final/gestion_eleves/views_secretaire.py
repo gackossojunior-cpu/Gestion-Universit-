@@ -172,7 +172,6 @@ def sec_releve(request, etudiant_id):
     if etu.semestre not in semestres_avec_notes:
         semestres_avec_notes.append(etu.semestre)
 
-
     # Semestre demandé (par défaut : semestre actuel)
     sem_demande = request.GET.get('semestre', etu.semestre)
     if sem_demande not in semestres_avec_notes and semestres_avec_notes:
@@ -232,14 +231,16 @@ def sec_releve(request, etudiant_id):
 @secretaire_required
 def sec_matrice_a3(request):
     from .models import Portail, Filiere as FiliereModel
-
-    facultes       = Faculte.objects.all()
-    fac_id         = _int(request.GET.get('faculte'))
-    sem_id         = request.GET.get('semestre', '')
-    portail_id     = _int(request.GET.get('portail'))
-    filiere_id     = _int(request.GET.get('filiere'))
+    facultes     = Faculte.objects.all()
+    fac_id       = _int(request.GET.get('faculte'))
+    sem_id       = request.GET.get('semestre', '')
+    portail_id   = _int(request.GET.get('portail'))
+    filiere_id   = _int(request.GET.get('filiere'))
     portails_dispo = list(Portail.objects.filter(faculte_id=fac_id)) if fac_id else []
     filieres_dispo = list(FiliereModel.objects.filter(portail__faculte_id=fac_id)) if fac_id else []
+    facultes = Faculte.objects.all()
+    fac_id   = _int(request.GET.get('faculte'))
+    sem_id   = request.GET.get('semestre', '')
 
     if not fac_id or not sem_id:
         return render(request, 'gestion_eleves/secretaire/matrice_a3_filtre.html', {
@@ -255,6 +256,9 @@ def sec_matrice_a3(request):
         portail_id=portail_id, filiere_id=filiere_id
     )
 
+    faculte = get_object_or_404(Faculte, id=fac_id)
+    struct, unites = calculer_matrice(fac_id, sem_id, save_results=True)
+
     if not struct:
         messages.warning(request, "Aucun étudiant ou UE trouvé.")
         return render(request, 'gestion_eleves/secretaire/matrice_a3_filtre.html', {
@@ -266,7 +270,12 @@ def sec_matrice_a3(request):
 
     params = ParametresUCCB.objects.first()
     titre_sign, nom_sign = faculte.signataire_pv()
-
+    context = {
+        'faculte': faculte, 'structure': struct, 'unites': unites,
+        'sem_id': sem_id, 'date': datetime.now().strftime('%d/%m/%Y'),
+        'parametres': params, 'titre_sign': titre_sign, 'nom_sign': nom_sign,
+    }
+    html = get_template('gestion_eleves/documents/matrice_a3.html').render(context)
     toutes_matieres = [
         {'ue': ue, 'mat': mat}
         for ue in unites for mat in ue.matieres.all()
@@ -278,8 +287,7 @@ def sec_matrice_a3(request):
         'date': datetime.now().strftime('%d/%m/%Y'),
         'parametres': params, 'titre_sign': titre_sign, 'nom_sign': nom_sign,
     }
-    html = get_template('gestion_eleves/documents/matrice_a3.html').render(context)
-
+    html     = get_template('gestion_eleves/documents/matrice_a3.html').render(context)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="Matrice_{faculte.code}_{sem_id}.pdf"'
     pisa.CreatePDF(html, dest=response)
@@ -287,7 +295,6 @@ def sec_matrice_a3(request):
 
 
 # ── PROMOTION ─────────────────────────────────────────────────
-
 @faculte_required
 def sec_promotion(request):
     facultes = Faculte.objects.all()
@@ -396,8 +403,6 @@ def sec_orientation_s3(request):
 
                 return redirect('fac_dashboard')
 
-                return redirect('sec_dashboard')
-
             except Exception as e:
                 messages.error(request, f"Erreur : {e}")
 
@@ -434,7 +439,6 @@ def api_ues(request):
             semestre=sem, filiere__portail__faculte_id=fac_id
         ).values('id', 'nom', 'code_ue')
     return JsonResponse({'ues': list(ues)})
-
 
 # ── GESTION ÉTUDIANTS ────────────────────────────────────────
 @secretaire_required
@@ -542,4 +546,3 @@ def sec_facultes(request):
     return render(request, 'gestion_eleves/secretaire/facultes.html', {
         'facultes': facultes,
     })
-

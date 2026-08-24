@@ -181,4 +181,3 @@ def reset_mdp_faculte(request):
 def redirect_to_faculte(request, **kwargs):
     """Redirige les anciens liens /enseignant/* vers l'Espace Faculté."""
     return redirect('login_faculte')
-

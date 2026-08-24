@@ -61,7 +61,6 @@ urlpatterns = [
     path('enseignant/deliberation/', views_auth.redirect_to_faculte,  name='ens_deliberation'),
     path('enseignant/note/<int:etudiant_id>/', views_auth.redirect_to_faculte, name='ens_note_individuelle'),
     path('enseignant/matrice-a3/',   views_auth.redirect_to_faculte,  name='ens_matrice_a3'),
-
     # ── ESPACE ENSEIGNANT (ancien — gardé pour compatibilité) ──
     path('enseignant/dashboard/',    views_enseignant.ens_dashboard,         name='ens_dashboard'),
     path('enseignant/classe/',       views_enseignant.ens_liste_classe,      name='ens_liste_classe'),
@@ -74,13 +73,10 @@ urlpatterns = [
     path('notes-etudiant/<int:etudiant_id>/', views_enseignant.vue_qr_etudiant, name='vue_qr_etudiant'),
 
     # ── API ───────────────────────────────────────────────────
-
     path('api/portails/', views_secretaire.api_portails, name='api_portails'),
     path('api/filieres/', views_secretaire.api_filieres, name='api_filieres'),
     path('api/ues/',      views_secretaire.api_ues,      name='api_ues'),
-
     path('gestion_finance/portails/', views_secretaire.api_portails, name='api_portails'),
     path('gestion_finance/filieres/', views_secretaire.api_filieres, name='api_filieres'),
     path('gestion_finance/ues/',      views_secretaire.api_ues,      name='api_ues'),
-
 ]
